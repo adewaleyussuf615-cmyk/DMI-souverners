@@ -16,7 +16,7 @@ export default function Homepage() {
 
           <nav className="nav-links">
             <a href="/">Home</a>
-            <a href="#products">Products</a>
+            <a href="/products">Products</a>
             <a href="#about">About</a>
             <a href="#contact">Contact</a>
           </nav>
@@ -51,7 +51,7 @@ export default function Homepage() {
 
           <div className="hero-buttons">
 
-            <a href="#products" className="primary-btn">
+            <a href="/products" className="primary-btn">
               Explore Collection
             </a>
 
@@ -101,22 +101,6 @@ export default function Homepage() {
 
       </section>
 
-
-
-      {/* Products */}
-      <section id="products" className="products-section wrap">
-
-        <p className="eyebrow">
-          OUR COLLECTION
-        </p>
-
-        <h2>
-          Featured Products
-        </h2>
-
-        <Storefront />
-
-      </section>
 
 
 
