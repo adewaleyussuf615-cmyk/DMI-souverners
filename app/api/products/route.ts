@@ -8,7 +8,24 @@ export async function GET() {
     .order("created_at", { ascending: false });
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(
+      { error: error.message },
+      { status: 500 }
+    );
   }
-  return NextResponse.json({ products: data });
+
+  const products = data.map((item) => ({
+    id: item.id,
+    name: item.Product_name,
+    description: item.Description,
+    price: item.Price,
+    category: item.Category,
+    images: [
+      item.Image_url_1,
+      item.Image_url_2,
+      item.Image_url_3,
+    ].filter(Boolean),
+  }));
+
+  return NextResponse.json({ products });
 }
