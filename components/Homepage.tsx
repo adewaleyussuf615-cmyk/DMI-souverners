@@ -21,9 +21,9 @@ export default function Homepage() {
             <a href="#contact">Contact</a>
           </nav>
 
-          <button className="search-btn">
+          <a href="/products" className="search-btn">
             Search
-          </button>
+          </a>
 
         </div>
       </header>
