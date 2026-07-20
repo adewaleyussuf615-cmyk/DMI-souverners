@@ -20,10 +20,10 @@ export async function GET() {
     description: item.Description,
     price: item.Price,
     category: item.Category,
-    images: [
-      item.Image_url_1,
-      item.Image_url_2,
-      item.Image_url_3,
+ images: [
+      item["Image_url 1"],
+      item["Image_url 2"],
+      item["Image_url 3"],
     ].filter(Boolean),
   }));
 
