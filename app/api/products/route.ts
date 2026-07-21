@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabaseClient";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   const { data, error } = await supabase
     .from("products")
@@ -20,7 +22,7 @@ export async function GET() {
     description: item.Description,
     price: item.Price,
     category: item.Category,
- images: [
+    images: [
       item["Image_url 1"],
       item["Image_url 2"],
       item["Image_url 3"],
