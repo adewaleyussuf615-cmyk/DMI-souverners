@@ -122,7 +122,13 @@ export default function Storefront() {
     <>
       <header>
         <div className="wrap header-row">
-          <span className="logo">NOOR</span>
+          <a href="/" className="logo">NOOR</a>
+          <nav className="nav-links">
+            <a href="/">Home</a>
+            <a href="/products">Products</a>
+            <a href="/#about">About</a>
+            <a href="/#contact">Contact</a>
+          </nav>
           <div className="header-icons">
             <button className="icon-btn" onClick={() => setCartOpen(true)} aria-label="Cart">
               <svg viewBox="0 0 24 24">
