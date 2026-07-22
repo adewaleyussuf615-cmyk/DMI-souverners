@@ -18,14 +18,14 @@ export async function GET() {
 
   const products = data.map((item) => ({
     id: item.id,
-    name: item.Product_name,
-    description: item.Description,
-    price: item.Price,
-    category: item.Category,
+    name: item.product_name,
+    description: item.description,
+    price: item.price,
+    category: item.category,
     images: [
-      item["Image_url 1"],
-      item["Image_url 2"],
-      item["Image_url 3"],
+      item["image_url 1"],
+      item["image_url 2"],
+      item["image_url 3"],
     ].filter(Boolean),
   }));
 
