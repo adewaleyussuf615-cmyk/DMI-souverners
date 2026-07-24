@@ -30,9 +30,17 @@ export default function Homepage() {
 
 
       {/* Hero */}
-      <section className="hero wrap">
+      <section className="hero">
+        <div className="hero-bg">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="https://picsum.photos/seed/noor-hero-bg/1600/900"
+            alt=""
+          />
+          <div className="hero-overlay" />
+        </div>
 
-        <div className="hero-copy">
+        <div className="wrap hero-copy">
 
           <p className="eyebrow">
             PREMIUM CORPORATE GIFTS
@@ -55,22 +63,13 @@ export default function Homepage() {
               Explore Collection
             </a>
 
-            <a href="#contact" className="secondary-btn">
+            <a href="#contact" className="secondary-btn secondary-btn-light">
               Custom Order
             </a>
 
           </div>
 
         </div>
-
-
-        <div className="hero-image">
-          <img
-            src="https://images.unsplash.com/photo-1544816155-12df9643f363"
-            alt="Premium gifts"
-          />
-        </div>
-
       </section>
 
 
@@ -107,16 +106,28 @@ export default function Homepage() {
       {/* About */}
       <section id="about" className="about">
 
-        <div className="wrap">
+        <div className="wrap about-grid">
 
-          <h2>
-            Designed For Meaningful Connections
-          </h2>
+          <div className="about-image">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="https://picsum.photos/seed/noor-about/900/900"
+              alt=""
+            />
+          </div>
 
-          <p>
-            NOOR creates premium products that help brands celebrate,
-            connect and create memorable experiences.
-          </p>
+          <div className="about-copy">
+            <p className="eyebrow">OUR APPROACH</p>
+            <h2>
+              Designed For Meaningful Connections
+            </h2>
+            <p>
+              NOOR creates premium products that help brands celebrate,
+              connect and create memorable experiences. Every item is chosen
+              for how it holds up in daily use, not just how it photographs
+              — because a gift that lasts says more than one that doesn't.
+            </p>
+          </div>
 
         </div>
 
@@ -135,16 +146,38 @@ export default function Homepage() {
           Start your custom project with NOOR today.
         </p>
 
-        <button className="primary-btn">
+        <a href="https://wa.me/2349126105778" className="primary-btn">
           Start Your Project
-        </button>
+        </a>
 
       </section>
 
 
 
       <footer>
-        <div className="wrap">
+        <div className="wrap footer-grid">
+
+          <div className="footer-col">
+            <div className="logo">NOOR</div>
+            <p>Considered corporate gifting essentials, made to impress and built to last.</p>
+          </div>
+
+          <div className="footer-col">
+            <h4>Shop</h4>
+            <a href="/products">All Products</a>
+            <a href="/#about">About</a>
+            <a href="/#contact">Custom Orders</a>
+          </div>
+
+          <div className="footer-col">
+            <h4>Order Via</h4>
+            <a href="https://wa.me/2349126105778">WhatsApp</a>
+            <a href="https://instagram.com/manestyle.lagos">Instagram</a>
+          </div>
+
+        </div>
+
+        <div className="wrap footer-bottom">
           © {new Date().getFullYear()} NOOR. All rights reserved.
         </div>
       </footer>
