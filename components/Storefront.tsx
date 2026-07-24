@@ -79,7 +79,7 @@ const categories = useMemo(
           .map((p) => p.category)
           .filter(Boolean)
       )
-    ),
+    ).sort((a, b) => a.localeCompare(b)),
   ],
   [products]
 );
