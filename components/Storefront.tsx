@@ -43,8 +43,9 @@ function imagesFor(p: Product) {
 export default function Storefront() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("all");
+ const [search, setSearch] = useState("");
+const [category, setCategory] = useState("all");
+const [categoryOpen, setCategoryOpen] = useState(false);
   const [detailProduct, setDetailProduct] = useState<Product | null>(null);
   const [detailImageIdx, setDetailImageIdx] = useState(0);
   const [detailQty, setDetailQty] = useState(1);
@@ -69,7 +70,19 @@ export default function Storefront() {
       .then((d) => setProducts(d.products || []))
       .finally(() => setLoading(false));
   }, []);
-
+const categories = useMemo(
+  () => [
+    "all",
+    ...Array.from(
+      new Set(
+        products
+          .map((p) => p.category)
+          .filter(Boolean)
+      )
+    ),
+  ],
+  [products]
+);
   const filtered = useMemo(() => {
     let list = products;
     if (category !== "all") {
@@ -196,15 +209,70 @@ export default function Storefront() {
         </div>
 
         <div className="shop-toolbar">
-          <div className="search-box">
-            <input
-              type="text"
-              placeholder="Search products"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
-        </div>
+
+  <div className="search-box">
+    <input
+      type="text"
+      placeholder="Search products"
+      value={search}
+      onChange={(e) => setSearch(e.target.value)}
+    />
+  </div>
+
+
+  <div className="category-menu">
+
+    <button
+      className="category-btn"
+      onClick={() =>
+        setCategoryOpen(!categoryOpen)
+      }
+    >
+      {category === "all"
+        ? "Categories"
+        : category}
+
+      <span>
+        ▾
+      </span>
+
+    </button>
+
+
+    {categoryOpen && (
+
+      <div className="category-dropdown">
+
+        {categories.map((c)=>(
+
+          <button
+            key={c}
+            onClick={()=>{
+              setCategory(c);
+              setCategoryOpen(false);
+            }}
+            className={
+              c === category
+              ? "active-category"
+              : ""
+            }
+          >
+
+            {c === "all"
+              ? "All Products"
+              : c}
+
+          </button>
+
+        ))}
+
+      </div>
+
+    )}
+
+  </div>
+
+</div>
         {category !== "all" && (
   <div className="active-category-bar">
     <span>
