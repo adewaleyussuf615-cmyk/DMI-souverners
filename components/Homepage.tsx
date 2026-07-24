@@ -1,8 +1,49 @@
 "use client";
 
-import Storefront from "@/components/Storefront";
+import { useEffect, useRef, useState } from "react";
 
 export default function Homepage() {
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [categories, setCategories] = useState<string[]>([]);
+  const searchMenuRef = useRef<HTMLDivElement>(null);
+
+  // Get all product categories from the products API.
+  useEffect(() => {
+    fetch("/api/products")
+      .then((response) => response.json())
+      .then((data) => {
+        const categoryList = (data.products || [])
+          .map((product: { category?: string }) => product.category)
+          .filter(
+            (value: string | undefined): value is string =>
+              Boolean(value)
+          );
+
+        setCategories(Array.from(new Set(categoryList)));
+      })
+      .catch(() => {
+        setCategories([]);
+      });
+  }, []);
+
+  // Close the dropdown when the user clicks outside it.
+  useEffect(() => {
+    function closeDropdown(event: MouseEvent) {
+      if (
+        searchMenuRef.current &&
+        !searchMenuRef.current.contains(event.target as Node)
+      ) {
+        setSearchOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", closeDropdown);
+
+    return () => {
+      document.removeEventListener("mousedown", closeDropdown);
+    };
+  }, []);
+
   return (
     <main>
 
@@ -21,9 +62,60 @@ export default function Homepage() {
             <a href="#contact">Contact</a>
           </nav>
 
-          <a href="/products" className="search-btn">
-            Search
-          </a>
+          <div className="search-menu" ref={searchMenuRef}>
+  <button
+    type="button"
+    className="search-btn"
+    onClick={() => setSearchOpen((open) => !open)}
+    aria-expanded={searchOpen}
+    aria-haspopup="menu"
+  >
+    Search
+
+    <span
+      className={`search-arrow ${
+        searchOpen ? "search-arrow-open" : ""
+      }`}
+    >
+      ⌄
+    </span>
+  </button>
+
+  {searchOpen && (
+    <div className="search-dropdown" role="menu">
+      <div className="search-dropdown-title">
+        Shop by category
+      </div>
+
+      <a
+        href="/products"
+        className="search-dropdown-item"
+        role="menuitem"
+        onClick={() => setSearchOpen(false)}
+      >
+        All Products
+      </a>
+
+      {categories.map((category) => (
+        <a
+          key={category}
+          href={`/products?category=${encodeURIComponent(category)}`}
+          className="search-dropdown-item"
+          role="menuitem"
+          onClick={() => setSearchOpen(false)}
+        >
+          {category}
+        </a>
+      ))}
+
+      {categories.length === 0 && (
+        <span className="search-dropdown-empty">
+          No categories available
+        </span>
+      )}
+    </div>
+  )}
+</div>
 
         </div>
       </header>

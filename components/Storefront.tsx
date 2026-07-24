@@ -32,6 +32,14 @@ export default function Storefront() {
   const [custName, setCustName] = useState("");
   const [custPhone, setCustPhone] = useState("");
   const [custAddress, setCustAddress] = useState("");
+  useEffect(() => {
+  const urlParameters = new URLSearchParams(window.location.search);
+  const selectedCategory = urlParameters.get("category");
+
+  if (selectedCategory) {
+    setCategory(selectedCategory);
+  }
+}, []);
 
   useEffect(() => {
     fetch("/api/products")
@@ -39,11 +47,6 @@ export default function Storefront() {
       .then((d) => setProducts(d.products || []))
       .finally(() => setLoading(false));
   }, []);
-
-  const categories = useMemo(
-    () => ["all", ...Array.from(new Set(products.map((p) => p.category)))],
-    [products]
-  );
 
   const filtered = useMemo(() => {
     let list = products;
@@ -159,18 +162,25 @@ export default function Storefront() {
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
-          <div className="chip-row">
-            {categories.map((c) => (
-              <button
-                key={c}
-                className={`chip ${c === category ? "active" : ""}`}
-                onClick={() => setCategory(c)}
-              >
-                {c === "all" ? "All" : c}
-              </button>
-            ))}
-          </div>
         </div>
+        {category !== "all" && (
+  <div className="active-category-bar">
+    <span>
+      Showing products in: <strong>{category}</strong>
+    </span>
+
+    <button
+      type="button"
+      onClick={() => {
+        setCategory("all");
+        window.history.replaceState({}, "", "/products");
+      }}
+    >
+      Clear filter
+    </button>
+  </div>
+)}
+
 
         {loading ? (
           <p style={{ color: "var(--ink-soft)" }}>Loading products…</p>
