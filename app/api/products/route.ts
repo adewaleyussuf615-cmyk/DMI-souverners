@@ -16,18 +16,69 @@ export async function GET() {
     );
   }
 
-  const products = data.map((item) => ({
-    id: item.id,
-    name: item.product_name,
-    description: item.description,
-    price: item.price,
-    category: item.category,
-    images: [
-      item["image_url 1"],
-      item["image_url 2"],
-      item["image_url 3"],
-    ].filter(Boolean),
-  }));
+  const products = (data ?? [])
+    .map((item) => {
+      // Support the different column-name formats in Supabase.
+      const name =
+        item.product_name ??
+        item.Product_name ??
+        item.name ??
+        item.Name ??
+        "";
+
+      const description =
+        item.description ??
+        item.Description ??
+        "";
+
+      const priceValue =
+        item.price ??
+        item.Price ??
+        0;
+
+      const category =
+        item.category ??
+        item.Category ??
+        "Uncategorized";
+
+      const images = [
+        item["image_url 1"],
+        item["image_url 2"],
+        item["image_url 3"],
+        item["Image_url 1"],
+        item["Image_url 2"],
+        item["Image_url 3"],
+        item.image_url,
+        item.Image_url,
+      ].filter(
+        (image): image is string =>
+          typeof image === "string" && image.trim().length > 0
+      );
+
+      return {
+        id: item.id,
+        name: String(name).trim(),
+        description: String(description || "").trim(),
+        long_description: String(
+          item.long_description ??
+          item.Long_description ??
+          description ??
+          ""
+        ).trim(),
+        price: Number(priceValue) || 0,
+        category: String(category || "Uncategorized").trim(),
+        images,
+        features: Array.isArray(item.features)
+          ? item.features
+          : [],
+        badge: item.badge ?? null,
+        rating: item.rating ?? null,
+        moq: item.moq ?? null,
+        weight: item.weight ?? null,
+      };
+    })
+    // Do not send empty or malformed product rows to the frontend.
+    .filter((product) => product.name.length > 0);
 
   return NextResponse.json({ products });
 }

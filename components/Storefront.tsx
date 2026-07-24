@@ -13,9 +13,31 @@ function money(n: number) {
 const PLACEHOLDER = (seed: string, n: number) => `https://picsum.photos/seed/${seed}-${n}/600/600`;
 
 function imagesFor(p: Product) {
-  if (p.images && p.images.length) return p.images;
-  const seed = p.name.toLowerCase().replace(/[^a-z0-9]/g, "");
-  return [PLACEHOLDER(seed, 1), PLACEHOLDER(seed, 2), PLACEHOLDER(seed, 3)];
+  const validImages = Array.isArray(p.images)
+    ? p.images.filter(
+        (image): image is string =>
+          typeof image === "string" && image.trim().length > 0
+      )
+    : [];
+
+  if (validImages.length > 0) {
+    return validImages;
+  }
+
+  const safeName =
+    typeof p.name === "string" && p.name.trim()
+      ? p.name
+      : `product-${p.id}`;
+
+  const seed = safeName
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "");
+
+  return [
+    PLACEHOLDER(seed, 1),
+    PLACEHOLDER(seed, 2),
+    PLACEHOLDER(seed, 3),
+  ];
 }
 
 export default function Storefront() {
@@ -50,13 +72,33 @@ export default function Storefront() {
 
   const filtered = useMemo(() => {
     let list = products;
-    if (category !== "all") list = list.filter((p) => p.category === category);
+    if (category !== "all") {
+  list = list.filter(
+    (p) =>
+      typeof p.category === "string" &&
+      p.category.toLowerCase() === category.toLowerCase()
+  );
+}
     if (search) {
-      const q = search.toLowerCase();
-      list = list.filter(
-        (p) => p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q)
-      );
-    }
+  const q = search.toLowerCase().trim();
+
+  list = list.filter((p) => {
+    const productName =
+      typeof p.name === "string"
+        ? p.name.toLowerCase()
+        : "";
+
+    const productCategory =
+      typeof p.category === "string"
+        ? p.category.toLowerCase()
+        : "";
+
+    return (
+      productName.includes(q) ||
+      productCategory.includes(q)
+    );
+  });
+}
     return list;
   }, [products, category, search]);
 
