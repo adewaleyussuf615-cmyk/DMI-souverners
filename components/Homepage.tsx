@@ -132,32 +132,68 @@ export default function Homepage() {
           <div className="hero-overlay" />
         </div>
 
-        <div className="wrap hero-copy">
+        <div className="wrap hero-inner">
 
-          <p className="eyebrow">
-            PREMIUM CORPORATE GIFTS
-          </p>
+          <div className="hero-copy">
 
-          <h1>
-            Create Custom Products
-            <br />
-            That Feel Premium
-          </h1>
+            <p className="eyebrow">
+              PREMIUM CORPORATE GIFTS
+            </p>
 
-          <p className="hero-text">
-            Discover thoughtfully designed corporate gifts and branded essentials
-            created to elevate every occasion and leave a lasting impression.
-          </p>
+            <h1>
+              Create Custom Products
+              <br />
+              That Feel Premium
+            </h1>
 
-          <div className="hero-buttons">
+            <p className="hero-text">
+              Discover thoughtfully designed corporate gifts and branded essentials
+              created to elevate every occasion and leave a lasting impression.
+            </p>
 
-            <a href="/products" className="primary-btn">
-              Explore Collection
-            </a>
+            <div className="hero-buttons">
 
-            <a href="#contact" className="secondary-btn secondary-btn-light">
-              Custom Order
-            </a>
+              <a href="/products" className="primary-btn">
+                Explore Collection
+              </a>
+
+              <a href="#contact" className="secondary-btn secondary-btn-light">
+                Custom Order
+              </a>
+
+            </div>
+
+          </div>
+
+
+          <div className="hero-visual">
+
+            <svg viewBox="0 0 260 260" className="gift-box-svg">
+              <rect x="35" y="70" width="190" height="150" rx="6" fill="#181614" />
+              <rect x="35" y="70" width="80" height="150" fill="#eae6de" />
+              <rect x="145" y="70" width="80" height="150" fill="#eae6de" />
+              <rect x="20" y="45" width="220" height="34" rx="10" fill="#181614" />
+            </svg>
+
+            <div className="feature-badge badge-top-left">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
+              <span>Fast Delivery</span>
+            </div>
+
+            <div className="feature-badge badge-top-right">
+              <svg viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z" /></svg>
+              <span>Personalized</span>
+            </div>
+
+            <div className="feature-badge badge-bottom-right">
+              <svg viewBox="0 0 24 24"><path d="M12 20h9" /><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" /></svg>
+              <span>Bespoke Design</span>
+            </div>
+
+            <div className="feature-badge badge-bottom-left">
+              <svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" /></svg>
+              <span>Curated Quality</span>
+            </div>
 
           </div>
 
