@@ -321,7 +321,7 @@ header{position:sticky;top:0;z-index:40;background:rgba(250,248,244,.92);backdro
   position:relative;
   width:180px;
   height:180px;
-  background:var(--color-charcoal);
+  background:var(--gold);
   border-radius:12px;
   box-shadow:0 40px 100px #0000002e;
   animation:floating-gift 8s ease-in-out infinite;
@@ -344,7 +344,7 @@ header{position:sticky;top:0;z-index:40;background:rgba(250,248,244,.92);backdro
   left:-6px;
   width:calc(100% + 12px);
   height:44px;
-  background:#1a1a1a;
+  background:#A9824F;
   border-radius:6px;
   box-shadow:0 6px 15px #0000004d;
   z-index:2;
