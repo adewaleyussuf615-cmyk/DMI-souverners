@@ -1,6 +1,7 @@
 :root{
   --bg:#FAF8F4; --panel:#FFFFFF; --ink:#1D1B18; --ink-soft:#625D54;
   --line:#E7E1D6; --gold:#A9824F; --danger:#B2503F;
+  --color-charcoal:#181614; --color-silver:#eae6de;
 }
 *{box-sizing:border-box;}
 html,body{margin:0;padding:0;}
@@ -306,40 +307,137 @@ header{position:sticky;top:0;z-index:40;background:rgba(250,248,244,.92);backdro
   justify-content:center;
 }
 
-.gift-box-svg {
-  width:220px;
-  height:220px;
-  filter:drop-shadow(0 30px 40px rgba(0,0,0,.35));
+.visual-abstract-circle {
+  position:absolute;
+  width:420px;
+  height:420px;
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:50%;
+  z-index:-1;
+  animation:pulse 12s infinite;
 }
 
-.feature-badge {
+.visual-gift-box {
+  position:relative;
+  width:180px;
+  height:180px;
+  background:var(--color-charcoal);
+  border-radius:12px;
+  box-shadow:0 40px 100px #0000002e;
+  animation:floating-gift 8s ease-in-out infinite;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:all .6s cubic-bezier(.165,.84,.44,1);
+  cursor:pointer;
+}
+
+.visual-gift-box:hover {
+  transform:scale(1.06) rotate(0deg);
+  box-shadow:0 50px 120px #00000040;
+}
+
+.gift-lid {
+  position:absolute;
+  top:-12px;
+  left:-6px;
+  width:calc(100% + 12px);
+  height:34px;
+  background:#1a1a1a;
+  border-radius:6px;
+  box-shadow:0 6px 15px #0000004d;
+  z-index:2;
+  transition:all .6s cubic-bezier(.165,.84,.44,1);
+}
+
+.visual-gift-box:hover .gift-lid {
+  transform:translateY(-8px) rotate(-2deg);
+}
+
+.gift-ribbon-v {
+  position:absolute;
+  top:0;
+  left:50%;
+  transform:translate(-50%);
+  width:28px;
+  height:100%;
+  background:var(--color-silver);
+  opacity:.95;
+  z-index:1;
+}
+
+.gift-sparkle {
+  position:absolute;
+  width:6px;
+  height:6px;
+  background:#fff;
+  border-radius:50%;
+  opacity:0;
+  pointer-events:none;
+  z-index:3;
+  transition:all .8s cubic-bezier(.165,.84,.44,1);
+}
+
+.sparkle-1 { top:10%; left:8%; }
+.sparkle-2 { top:15%; right:10%; }
+.sparkle-3 { bottom:12%; left:14%; }
+.sparkle-4 { bottom:18%; right:8%; }
+
+.visual-gift-box:hover .sparkle-1 { opacity:1; transform:translate(-14px,-14px); }
+.visual-gift-box:hover .sparkle-2 { opacity:1; transform:translate(14px,-10px); }
+.visual-gift-box:hover .sparkle-3 { opacity:1; transform:translate(-10px,14px); }
+.visual-gift-box:hover .sparkle-4 { opacity:1; transform:translate(12px,12px); }
+
+@keyframes floating-gift {
+  0%, 100% { transform:translateY(0) rotate(-1.5deg); }
+  50% { transform:translateY(-16px) rotate(1.5deg); }
+}
+
+@keyframes floating-card {
+  0%, 100% { transform:translateY(0); }
+  50% { transform:translateY(-10px); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform:scale(1); opacity:.6; }
+  50% { transform:scale(1.05); opacity:1; }
+}
+
+.visual-floating-card {
   position:absolute;
   display:flex;
   align-items:center;
   gap:8px;
-  background:#fff;
+  background:#ffffffd9;
+  -webkit-backdrop-filter:blur(16px);
+  backdrop-filter:blur(16px);
+  border:1px solid rgba(255,255,255,.4);
   color:var(--ink);
   padding:10px 16px;
-  border-radius:999px;
+  border-radius:16px;
   font-size:12px;
-  font-weight:600;
-  letter-spacing:.02em;
+  font-weight:700;
+  letter-spacing:.05em;
+  text-transform:uppercase;
   white-space:nowrap;
-  box-shadow:0 14px 28px -14px rgba(0,0,0,.35);
+  box-shadow:0 24px 48px #0000000f;
+  z-index:5;
+  animation:floating-card 10s ease-in-out infinite;
 }
 
-.feature-badge svg {
+.badge-top-left { top:6%; left:-14%; animation-delay:0s; }
+.badge-top-right { top:12%; right:-18%; animation-delay:2.5s; }
+.badge-bottom-right { bottom:14%; right:-16%; animation-delay:5s; }
+.badge-bottom-left { bottom:4%; left:-10%; animation-delay:7.5s; }
+
+.visual-floating-card svg {
   width:15px;
   height:15px;
   stroke:var(--ink);
   fill:none;
   stroke-width:2;
+  flex-shrink:0;
 }
-
-.badge-top-left { top:6%; left:-14%; }
-.badge-top-right { top:12%; right:-18%; }
-.badge-bottom-right { bottom:14%; right:-16%; }
-.badge-bottom-left { bottom:4%; left:-10%; }
 
 .hero h1 {
   font-family:'Fraunces', serif;
