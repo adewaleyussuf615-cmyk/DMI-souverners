@@ -284,13 +284,13 @@ export default function Storefront() {
 
   function selectCollectionTab(tab: CollectionTab) {
     setCollectionTab(tab);
-
-    /*
-     * The collection tabs are global filters, so clear
-     * any category selected from the homepage.
-     */
     setCategory("all");
     setCategoryOpen(false);
+
+    // Search and category filters only apply to All Products.
+    if (tab !== "all") {
+      setSearch("");
+    }
 
     window.history.replaceState(
       {},
@@ -564,90 +564,95 @@ export default function Storefront() {
         role="tabpanel"
         aria-live="polite"
       >
-        <div className="shop-toolbar">
-          <div className="search-box">
-            <input
-              type="search"
-              placeholder="Search products"
-              aria-label="Search products"
-              value={search}
-              onChange={(event) =>
-                setSearch(event.target.value)
-              }
-            />
-          </div>
+        {/* Search and category filters only appear under All Products */}
+        {collectionTab === "all" && (
+          <>
+            <div className="shop-toolbar">
+              <div className="search-box">
+                <input
+                  type="search"
+                  placeholder="Search products"
+                  aria-label="Search products"
+                  value={search}
+                  onChange={(event) =>
+                    setSearch(event.target.value)
+                  }
+                />
+              </div>
 
-          <div className="category-menu">
-            <button
-              type="button"
-              className="category-btn"
-              aria-expanded={categoryOpen}
-              aria-haspopup="menu"
-              onClick={() =>
-                setCategoryOpen(
-                  (open) => !open
-                )
-              }
-            >
-              {category === "all"
-                ? "Categories"
-                : category}
+              <div className="category-menu">
+                <button
+                  type="button"
+                  className="category-btn"
+                  aria-expanded={categoryOpen}
+                  aria-haspopup="menu"
+                  onClick={() =>
+                    setCategoryOpen(
+                      (open) => !open
+                    )
+                  }
+                >
+                  {category === "all"
+                    ? "Categories"
+                    : category}
 
-              <span aria-hidden="true">
-                ▾
-              </span>
-            </button>
+                  <span aria-hidden="true">
+                    ▾
+                  </span>
+                </button>
 
-            {categoryOpen && (
-              <div
-                className="category-dropdown"
-                role="menu"
-              >
-                {categories.map(
-                  (categoryOption) => (
-                    <button
-                      key={categoryOption}
-                      type="button"
-                      role="menuitem"
-                      onClick={() =>
-                        selectCategory(
-                          categoryOption
-                        )
-                      }
-                      className={
-                        categoryOption ===
-                        category
-                          ? "active-category"
-                          : ""
-                      }
-                    >
-                      {categoryOption === "all"
-                        ? "All Categories"
-                        : categoryOption}
-                    </button>
-                  )
+                {categoryOpen && (
+                  <div
+                    className="category-dropdown"
+                    role="menu"
+                  >
+                    {categories.map(
+                      (categoryOption) => (
+                        <button
+                          key={categoryOption}
+                          type="button"
+                          role="menuitem"
+                          onClick={() =>
+                            selectCategory(
+                              categoryOption
+                            )
+                          }
+                          className={
+                            categoryOption ===
+                            category
+                              ? "active-category"
+                              : ""
+                          }
+                        >
+                          {categoryOption === "all"
+                            ? "All Categories"
+                            : categoryOption}
+                        </button>
+                      )
+                    )}
+                  </div>
                 )}
               </div>
+            </div>
+
+            {category !== "all" && (
+              <div className="active-category-bar">
+                <span>
+                  Showing products in:{" "}
+                  <strong>{category}</strong>
+                </span>
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    selectCategory("all")
+                  }
+                >
+                  Clear filter
+                </button>
+              </div>
             )}
-          </div>
-        </div>
-
-        {category !== "all" && (
-          <div className="active-category-bar">
-            <span>
-              Showing products in:{" "}
-              <strong>{category}</strong>
-            </span>
-
-            <button
-              type="button"
-              onClick={() =>
-                selectCategory("all")
-              }
-            >
-              Clear filter
-            </button>
-          </div>
+          </>
         )}
 
         {loading ? (
