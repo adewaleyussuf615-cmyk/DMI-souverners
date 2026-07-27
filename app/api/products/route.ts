@@ -41,19 +41,23 @@ export async function GET() {
         item.Category ??
         "Uncategorized";
 
-      const images = [
-        item["image_url 1"],
-        item["image_url 2"],
-        item["image_url 3"],
-        item["Image_url 1"],
-        item["Image_url 2"],
-        item["Image_url 3"],
-        item.image_url,
-        item.Image_url,
-      ].filter(
-        (image): image is string =>
-          typeof image === "string" && image.trim().length > 0
-      );
+     const images = [
+  ...(Array.isArray(item.images) ? item.images : []),
+
+  item["image_url 1"],
+  item["image_url 2"],
+  item["image_url 3"],
+
+  item["Image_url 1"],
+  item["Image_url 2"],
+  item["Image_url 3"],
+
+  item.image_url,
+  item.Image_url,
+].filter(
+  (image): image is string =>
+    typeof image === "string" && image.trim().length > 0
+);
 
       return {
         id: item.id,

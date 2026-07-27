@@ -2,31 +2,132 @@
 
 import { useEffect, useRef, useState } from "react";
 
+type ApiProduct = {
+  id?: number;
+  name?: string;
+  category?: string;
+  images?: string[];
+};
+
+type CategoryCard = {
+  name: string;
+  image: string;
+};
+
+const FALLBACK_CATEGORY_CARDS: CategoryCard[] = [
+  {
+    name: "Corporate & Bulk",
+    image: "https://picsum.photos/seed/noor-corporate/900/1200",
+  },
+  {
+    name: "Executive Gifts",
+    image: "https://picsum.photos/seed/noor-executive/900/1200",
+  },
+  {
+    name: "Luxury Gift Boxes",
+    image: "https://picsum.photos/seed/noor-luxury/900/1200",
+  },
+  {
+    name: "Branded Stationery",
+    image: "https://picsum.photos/seed/noor-stationery/900/1200",
+  },
+  {
+    name: "Event Merchandise",
+    image: "https://picsum.photos/seed/noor-events/900/1200",
+  },
+  {
+    name: "Custom Packaging",
+    image: "https://picsum.photos/seed/noor-packaging/900/1200",
+  },
+];
+
+function createFallbackImage(category: string) {
+  const seed = category
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+
+  return `https://picsum.photos/seed/noor-${seed || "category"}/900/1200`;
+}
+
 export default function Homepage() {
   const [searchOpen, setSearchOpen] = useState(false);
-  const [categories, setCategories] = useState<string[]>([]);
+  const [categories, setCategories] = useState<string[]>(
+    FALLBACK_CATEGORY_CARDS.map((category) => category.name)
+  );
+  const [categoryCards, setCategoryCards] = useState<CategoryCard[]>(
+    FALLBACK_CATEGORY_CARDS
+  );
+
   const searchMenuRef = useRef<HTMLDivElement>(null);
+  const categoryTrackRef = useRef<HTMLDivElement>(null);
 
-  // Get all product categories from the products API.
   useEffect(() => {
-    fetch("/api/products")
-      .then((response) => response.json())
-      .then((data) => {
-        const categoryList = (data.products || [])
-          .map((product: { category?: string }) => product.category)
-          .filter(
-            (value: string | undefined): value is string =>
-              Boolean(value)
-          );
+    async function loadProducts() {
+      try {
+        const response = await fetch("/api/products");
 
-        setCategories(Array.from(new Set(categoryList)));
-      })
-      .catch(() => {
-        setCategories([]);
-      });
+        if (!response.ok) {
+          throw new Error("Unable to load products");
+        }
+
+        const data = await response.json();
+
+        const products: ApiProduct[] = Array.isArray(data.products)
+          ? data.products
+          : [];
+
+        const categoryMap = new Map<string, string>();
+
+        products.forEach((product) => {
+          const category =
+            typeof product.category === "string"
+              ? product.category.trim()
+              : "";
+
+          if (!category || categoryMap.has(category)) {
+            return;
+          }
+
+          const productImage = Array.isArray(product.images)
+            ? product.images.find(
+                (image) =>
+                  typeof image === "string" && image.trim().length > 0
+              )
+            : undefined;
+
+          categoryMap.set(
+            category,
+            productImage || createFallbackImage(category)
+          );
+        });
+
+        const sortedCategories = Array.from(categoryMap.keys()).sort((a, b) =>
+          a.localeCompare(b)
+        );
+
+        if (sortedCategories.length > 0) {
+          setCategories(sortedCategories);
+
+          setCategoryCards(
+            sortedCategories.map((category) => ({
+              name: category,
+              image:
+                categoryMap.get(category) || createFallbackImage(category),
+            }))
+          );
+        }
+      } catch {
+        setCategories(
+          FALLBACK_CATEGORY_CARDS.map((category) => category.name)
+        );
+        setCategoryCards(FALLBACK_CATEGORY_CARDS);
+      }
+    }
+
+    loadProducts();
   }, []);
 
-  // Close the dropdown when the user clicks outside it.
   useEffect(() => {
     function closeDropdown(event: MouseEvent) {
       if (
@@ -44,18 +145,31 @@ export default function Homepage() {
     };
   }, []);
 
+  function scrollCategories(direction: -1 | 1) {
+    const track = categoryTrackRef.current;
+
+    if (!track) {
+      return;
+    }
+
+    const scrollDistance = Math.max(track.clientWidth * 0.8, 280);
+
+    track.scrollBy({
+      left: direction * scrollDistance,
+      behavior: "smooth",
+    });
+  }
+
   return (
     <main>
-
       {/* Navigation */}
       <header>
         <div className="header-row wrap">
-
-          <div className="logo">
+          <a href="/" className="logo">
             NOOR
-          </div>
+          </a>
 
-          <nav className="nav-links">
+          <nav className="nav-links" aria-label="Main navigation">
             <a href="/">Home</a>
             <a href="/products">Products</a>
             <a href="#about">About</a>
@@ -63,63 +177,56 @@ export default function Homepage() {
           </nav>
 
           <div className="search-menu" ref={searchMenuRef}>
-  <button
-    type="button"
-    className="search-btn"
-    onClick={() => setSearchOpen((open) => !open)}
-    aria-expanded={searchOpen}
-    aria-haspopup="menu"
-  >
-    Search
+            <button
+              type="button"
+              className="search-btn"
+              onClick={() => setSearchOpen((open) => !open)}
+              aria-expanded={searchOpen}
+              aria-haspopup="menu"
+            >
+              Search
 
-    <span
-      className={`search-arrow ${
-        searchOpen ? "search-arrow-open" : ""
-      }`}
-    >
-      ⌄
-    </span>
-  </button>
+              <span
+                className={`search-arrow ${
+                  searchOpen ? "search-arrow-open" : ""
+                }`}
+                aria-hidden="true"
+              >
+                ⌄
+              </span>
+            </button>
 
-  {searchOpen && (
-    <div className="search-dropdown" role="menu">
-      <div className="search-dropdown-title">
-        Shop by category
-      </div>
+            {searchOpen && (
+              <div className="search-dropdown" role="menu">
+                <div className="search-dropdown-title">
+                  Shop by category
+                </div>
 
-      <a
-        href="/products"
-        className="search-dropdown-item"
-        role="menuitem"
-        onClick={() => setSearchOpen(false)}
-      >
-        All Products
-      </a>
+                <a
+                  href="/products"
+                  className="search-dropdown-item"
+                  role="menuitem"
+                  onClick={() => setSearchOpen(false)}
+                >
+                  All Products
+                </a>
 
-      {categories.map((category) => (
-        <a
-          key={category}
-          href={`/products?category=${encodeURIComponent(category)}`}
-          className="search-dropdown-item"
-          role="menuitem"
-          onClick={() => setSearchOpen(false)}
-        >
-          {category}
-        </a>
-      ))}
-
-      {categories.length === 0 && (
-        <span className="search-dropdown-empty">
-          No categories available
-        </span>
-      )}
-    </div>
-  )}
-</div>
-
+                {categories.map((category) => (
+                  <a
+                    key={category}
+                    href={`/products?category=${encodeURIComponent(category)}`}
+                    className="search-dropdown-item"
+                    role="menuitem"
+                    onClick={() => setSearchOpen(false)}
+                  >
+                    {category}
+                  </a>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </header>
-
 
       {/* Hero */}
       <section className="hero">
@@ -129,16 +236,13 @@ export default function Homepage() {
             src="https://picsum.photos/seed/noor-hero-bg/1600/900"
             alt=""
           />
+
           <div className="hero-overlay" />
         </div>
 
         <div className="wrap hero-inner">
-
           <div className="hero-copy">
-
-            <p className="eyebrow">
-              PREMIUM CORPORATE GIFTS
-            </p>
+            <p className="eyebrow">PREMIUM CORPORATE GIFTS</p>
 
             <h1>
               Create Custom Products
@@ -147,27 +251,26 @@ export default function Homepage() {
             </h1>
 
             <p className="hero-text">
-              Discover thoughtfully designed corporate gifts and branded essentials
-              created to elevate every occasion and leave a lasting impression.
+              Discover thoughtfully designed corporate gifts and branded
+              essentials created to elevate every occasion and leave a lasting
+              impression.
             </p>
 
             <div className="hero-buttons">
-
               <a href="/products" className="primary-btn">
                 Explore Collection
               </a>
 
-              <a href="#contact" className="secondary-btn secondary-btn-light">
+              <a
+                href="#contact"
+                className="secondary-btn secondary-btn-light"
+              >
                 Custom Order
               </a>
-
             </div>
-
           </div>
 
-
-          <div className="hero-visual">
-
+          <div className="hero-visual" aria-hidden="true">
             <div className="visual-abstract-circle" />
 
             <div className="visual-gift-box">
@@ -181,118 +284,186 @@ export default function Homepage() {
             </div>
 
             <div className="visual-floating-card badge-top-left">
-              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
+              <svg viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="9" />
+                <path d="M12 7v5l3 2" />
+              </svg>
               <span>Fast Delivery</span>
             </div>
 
             <div className="visual-floating-card badge-top-right">
-              <svg viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z" /></svg>
+              <svg viewBox="0 0 24 24">
+                <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z" />
+              </svg>
               <span>Personalized</span>
             </div>
 
             <div className="visual-floating-card badge-bottom-right">
-              <svg viewBox="0 0 24 24"><path d="M12 20h9" /><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" /></svg>
+              <svg viewBox="0 0 24 24">
+                <path d="M12 20h9" />
+                <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
+              </svg>
               <span>Bespoke Design</span>
             </div>
 
             <div className="visual-floating-card badge-bottom-left">
-              <svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" /></svg>
+              <svg viewBox="0 0 24 24">
+                <path d="M20 6 9 17l-5-5" />
+              </svg>
               <span>Curated Quality</span>
             </div>
-
           </div>
-
         </div>
       </section>
 
-
-
       {/* Benefits */}
       <section className="benefits">
-
         <div className="wrap benefit-grid">
-
           <div>
             <h3>Premium Quality</h3>
             <p>Carefully selected products made to impress.</p>
           </div>
-
 
           <div>
             <h3>Custom Branding</h3>
             <p>Personalised solutions for every business.</p>
           </div>
 
-
           <div>
             <h3>Fast Delivery</h3>
             <p>Reliable delivery for your important occasions.</p>
           </div>
-
         </div>
-
       </section>
 
+      {/* Explore Categories */}
+      <section className="home-categories">
+        <div className="wrap">
+          <div className="home-categories-header">
+            <div className="home-categories-heading">
+              <h2>Explore Categories</h2>
+              <p>Curated categories for every personalization need.</p>
+            </div>
 
+            <div className="home-categories-controls">
+              <a href="/products" className="home-categories-view-all">
+                View All Products
+              </a>
 
+              <div className="home-categories-arrows">
+                <button
+                  type="button"
+                  className="home-category-arrow"
+                  onClick={() => scrollCategories(-1)}
+                  aria-label="View previous categories"
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="m15 18-6-6 6-6" />
+                  </svg>
+                </button>
+
+                <button
+                  type="button"
+                  className="home-category-arrow"
+                  onClick={() => scrollCategories(1)}
+                  aria-label="View more categories"
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="m9 18 6-6-6-6" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div
+            className="home-category-track"
+            ref={categoryTrackRef}
+            aria-label="Product categories"
+          >
+            {categoryCards.map((category) => (
+              <a
+                key={category.name}
+                href={`/products?category=${encodeURIComponent(
+                  category.name
+                )}`}
+                className="home-category-card"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={category.image}
+                  alt={`${category.name} category`}
+                  loading="lazy"
+                  onError={(event) => {
+                    event.currentTarget.src = createFallbackImage(
+                      category.name
+                    );
+                  }}
+                />
+
+                <div className="home-category-overlay" />
+
+                <div className="home-category-content">
+                  <h3>{category.name}</h3>
+                  <span>Explore Collection</span>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* About */}
       <section id="about" className="about">
-
         <div className="wrap about-grid">
-
           <div className="about-image">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="https://picsum.photos/seed/noor-about/900/900"
-              alt=""
+              alt="Premium corporate gifts arranged by NOOR"
             />
           </div>
 
           <div className="about-copy">
             <p className="eyebrow">OUR APPROACH</p>
-            <h2>
-              Designed For Meaningful Connections
-            </h2>
+
+            <h2>Designed For Meaningful Connections</h2>
+
             <p>
               NOOR creates premium products that help brands celebrate,
               connect and create memorable experiences. Every item is chosen
-              for how it holds up in daily use, not just how it photographs
-              — because a gift that lasts says more than one that doesn't.
+              for how it holds up in daily use, not just how it photographs —
+              because a gift that lasts says more than one that doesn&apos;t.
             </p>
           </div>
-
         </div>
-
       </section>
-
-
 
       {/* Contact */}
       <section id="contact" className="contact wrap">
+        <h2>Need Something Unique?</h2>
 
-        <h2>
-          Need Something Unique?
-        </h2>
+        <p>Start your custom project with NOOR today.</p>
 
-        <p>
-          Start your custom project with NOOR today.
-        </p>
-
-        <a href="https://wa.me/2349126105778" className="primary-btn">
+        <a
+          href="https://wa.me/2349126105778"
+          className="primary-btn"
+          target="_blank"
+          rel="noreferrer"
+        >
           Start Your Project
         </a>
-
       </section>
-
-
 
       <footer>
         <div className="wrap footer-grid">
-
           <div className="footer-col">
             <div className="logo">NOOR</div>
-            <p>Considered corporate gifting essentials, made to impress and built to last.</p>
+
+            <p>
+              Considered corporate gifting essentials, made to impress and
+              built to last.
+            </p>
           </div>
 
           <div className="footer-col">
@@ -304,18 +475,29 @@ export default function Homepage() {
 
           <div className="footer-col">
             <h4>Order Via</h4>
-            <a href="https://wa.me/2349126105778">WhatsApp</a>
-            <a href="https://instagram.com/manestyle.lagos">Instagram</a>
-          </div>
 
+            <a
+              href="https://wa.me/2349126105778"
+              target="_blank"
+              rel="noreferrer"
+            >
+              WhatsApp
+            </a>
+
+            <a
+              href="https://instagram.com/manestyle.lagos"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Instagram
+            </a>
+          </div>
         </div>
 
         <div className="wrap footer-bottom">
           © {new Date().getFullYear()} NOOR. All rights reserved.
         </div>
       </footer>
-
-
     </main>
   );
 }
