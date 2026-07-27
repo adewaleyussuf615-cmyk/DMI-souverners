@@ -1070,56 +1070,94 @@ background:#f1f1f1 !important;
 ========================================================= */
 
 .catalog-hero {
-  padding: 92px 0 0;
-  border-bottom: 1px solid var(--line);
-  background: #ffffff;
+  position: relative;
+  min-height: 470px;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+
+  /* Temporary placeholder image */
+  background-image:
+    linear-gradient(
+      180deg,
+      rgba(14, 13, 12, 0.12) 0%,
+      rgba(14, 13, 12, 0.3) 48%,
+      rgba(14, 13, 12, 0.9) 100%
+    ),
+    linear-gradient(
+      90deg,
+      rgba(17, 15, 13, 0.82) 0%,
+      rgba(17, 15, 13, 0.58) 50%,
+      rgba(17, 15, 13, 0.45) 100%
+    ),
+    url("https://picsum.photos/seed/noor-catalog-hero/1800/900");
+
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  color: #ffffff;
   text-align: center;
 }
 
 .catalog-hero-inner {
+  min-height: 470px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding-top: 78px;
 }
 
 .catalog-eyebrow {
   margin: 0;
-  color: var(--ink);
+  color: rgba(255, 255, 255, 0.88);
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.28em;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
   text-transform: uppercase;
 }
 
 .catalog-hero h1 {
-  margin: 34px 0 0;
-  color: var(--ink);
+  margin: 30px 0 0;
+  color: #ffffff;
   font-family: "Fraunces", serif;
   font-size: clamp(48px, 5vw, 70px);
   font-weight: 300;
   line-height: 1.05;
+  text-shadow:
+    0 3px 22px rgba(0, 0, 0, 0.55),
+    0 1px 4px rgba(0, 0, 0, 0.7);
 }
 
 .catalog-hero h1 em {
+  color: #ffffff;
   font-weight: 300;
 }
 
 .catalog-description {
-  max-width: 650px;
-  margin: 36px auto 0;
-  color: var(--ink-soft);
+  max-width: 680px;
+  margin: 30px auto 0;
+  color: rgba(255, 255, 255, 0.9);
   font-size: 16px;
   line-height: 1.9;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.6);
 }
 
 .catalog-tabs {
+  width: fit-content;
+  max-width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 34px;
-  max-width: 100%;
-  margin-top: 86px;
+  margin-top: auto;
+  padding: 16px 28px 0;
   overflow-x: auto;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-bottom: none;
+  border-radius: 18px 18px 0 0;
+  background: rgba(15, 14, 12, 0.45);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
   scrollbar-width: none;
 }
 
@@ -1131,13 +1169,15 @@ background:#f1f1f1 !important;
   position: relative;
   flex-shrink: 0;
   padding: 0 0 17px;
-  color: var(--ink-soft);
+  color: rgba(255, 255, 255, 0.68);
   background: transparent;
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  transition: color 0.2s ease;
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
 }
 
 .catalog-tab::after {
@@ -1155,20 +1195,21 @@ background:#f1f1f1 !important;
 }
 
 .catalog-tab:hover {
-  color: var(--ink);
+  color: #ffffff;
+  transform: translateY(-1px);
 }
 
 .catalog-tab-active {
-  color: var(--ink);
+  color: #ffffff;
 }
 
 .catalog-tab-active::after {
-  background: var(--ink);
+  background: #ffffff;
   transform: scaleX(1);
 }
 
 .catalog-tab:focus-visible {
-  outline: 2px solid var(--gold);
+  outline: 2px solid #ffffff;
   outline-offset: 5px;
 }
 
@@ -1201,7 +1242,13 @@ background:#f1f1f1 !important;
 
 @media (max-width: 760px) {
   .catalog-hero {
-    padding-top: 64px;
+    min-height: 440px;
+    background-position: 60% center;
+  }
+
+  .catalog-hero-inner {
+    min-height: 440px;
+    padding-top: 60px;
   }
 
   .catalog-hero h1 {
@@ -1210,17 +1257,20 @@ background:#f1f1f1 !important;
   }
 
   .catalog-description {
+    max-width: 540px;
     margin-top: 24px;
     font-size: 14px;
     line-height: 1.75;
   }
 
   .catalog-tabs {
-    justify-content: flex-start;
     width: 100%;
+    justify-content: flex-start;
     gap: 26px;
-    margin-top: 56px;
-    padding: 0 4px;
+    padding: 16px 18px 0;
+    border-right: none;
+    border-left: none;
+    border-radius: 0;
   }
 
   .catalog-tab {
@@ -1234,7 +1284,26 @@ background:#f1f1f1 !important;
 
 @media (max-width: 480px) {
   .catalog-hero {
-    padding-top: 50px;
+    min-height: 420px;
+
+    background-image:
+      linear-gradient(
+        180deg,
+        rgba(14, 13, 12, 0.3) 0%,
+        rgba(14, 13, 12, 0.5) 52%,
+        rgba(14, 13, 12, 0.94) 100%
+      ),
+      linear-gradient(
+        90deg,
+        rgba(17, 15, 13, 0.72),
+        rgba(17, 15, 13, 0.58)
+      ),
+      url("https://picsum.photos/seed/noor-catalog-hero/1800/900");
+  }
+
+  .catalog-hero-inner {
+    min-height: 420px;
+    padding-top: 48px;
   }
 
   .catalog-eyebrow {
@@ -1246,11 +1315,11 @@ background:#f1f1f1 !important;
   }
 
   .catalog-description {
+    max-width: 330px;
     font-size: 13.5px;
   }
 
   .catalog-tabs {
     gap: 22px;
-    margin-top: 46px;
   }
 }
