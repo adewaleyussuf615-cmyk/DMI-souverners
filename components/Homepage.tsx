@@ -173,6 +173,7 @@ export default function Homepage() {
             <div className="visual-gift-box">
               <div className="gift-lid" />
               <div className="gift-ribbon-v" />
+              <div className="gift-ribbon-h" />
               <span className="gift-sparkle sparkle-1" />
               <span className="gift-sparkle sparkle-2" />
               <span className="gift-sparkle sparkle-3" />
