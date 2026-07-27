@@ -343,11 +343,11 @@ header{position:sticky;top:0;z-index:40;background:rgba(250,248,244,.92);backdro
   top:-12px;
   left:-6px;
   width:calc(100% + 12px);
-  height:34px;
+  height:44px;
   background:#1a1a1a;
   border-radius:6px;
   box-shadow:0 6px 15px #0000004d;
-  z-index:4;
+  z-index:2;
   transition:all .6s cubic-bezier(.165,.84,.44,1);
   transform-origin:top center;
   transform-style:preserve-3d;
