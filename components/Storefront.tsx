@@ -3,18 +3,58 @@
 import { useEffect, useMemo, useState } from "react";
 import type { Product } from "@/lib/types";
 
-const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "2348000000000";
-const INSTAGRAM_HANDLE = process.env.NEXT_PUBLIC_INSTAGRAM_HANDLE || "yourusername";
+const WHATSAPP_NUMBER =
+  process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "2348000000000";
 
-function money(n: number) {
-  return "₦" + n.toLocaleString("en-NG");
+const INSTAGRAM_HANDLE =
+  process.env.NEXT_PUBLIC_INSTAGRAM_HANDLE || "yourusername";
+
+const COLLECTION_TABS = [
+  {
+    id: "bestseller",
+    label: "Best Sellers",
+  },
+  {
+    id: "featured",
+    label: "Featured Products",
+  },
+  {
+    id: "all",
+    label: "All Products",
+  },
+] as const;
+
+type CollectionTab = (typeof COLLECTION_TABS)[number]["id"];
+
+function money(value: number) {
+  return `₦${value.toLocaleString("en-NG")}`;
 }
 
-const PLACEHOLDER = (seed: string, n: number) => `https://picsum.photos/seed/${seed}-${n}/600/600`;
+function normalizeBadge(product: Product) {
+  return String(product.badge || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[\s_-]+/g, "");
+}
 
-function imagesFor(p: Product) {
-  const validImages = Array.isArray(p.images)
-    ? p.images.filter(
+function isBestSeller(product: Product) {
+  const badge = normalizeBadge(product);
+
+  return badge === "bestseller" || badge === "bestselling";
+}
+
+function isFeaturedProduct(product: Product) {
+  const badge = normalizeBadge(product);
+
+  return badge === "featured" || badge === "featuredproduct";
+}
+
+const PLACEHOLDER = (seed: string, number: number) =>
+  `https://picsum.photos/seed/${seed}-${number}/600/600`;
+
+function imagesFor(product: Product) {
+  const validImages = Array.isArray(product.images)
+    ? product.images.filter(
         (image): image is string =>
           typeof image === "string" && image.trim().length > 0
       )
@@ -25,9 +65,9 @@ function imagesFor(p: Product) {
   }
 
   const safeName =
-    typeof p.name === "string" && p.name.trim()
-      ? p.name
-      : `product-${p.id}`;
+    typeof product.name === "string" && product.name.trim()
+      ? product.name
+      : `product-${product.id}`;
 
   const seed = safeName
     .toLowerCase()
@@ -43,283 +83,706 @@ function imagesFor(p: Product) {
 export default function Storefront() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
- const [search, setSearch] = useState("");
-const [category, setCategory] = useState("all");
-const [categoryOpen, setCategoryOpen] = useState(false);
-  const [detailProduct, setDetailProduct] = useState<Product | null>(null);
+  const [loadError, setLoadError] = useState("");
+
+  const [search, setSearch] = useState("");
+  const [category, setCategory] = useState("all");
+  const [categoryOpen, setCategoryOpen] = useState(false);
+  const [collectionTab, setCollectionTab] =
+    useState<CollectionTab>("all");
+
+  const [detailProduct, setDetailProduct] =
+    useState<Product | null>(null);
+
   const [detailImageIdx, setDetailImageIdx] = useState(0);
   const [detailQty, setDetailQty] = useState(1);
+
   const [cart, setCart] = useState<Record<number, number>>({});
   const [cartOpen, setCartOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
+
   const [custName, setCustName] = useState("");
   const [custPhone, setCustPhone] = useState("");
   const [custAddress, setCustAddress] = useState("");
+
+  /*
+   * Read category links coming from the homepage.
+   * Example: /products?category=Executive%20Gifts
+   */
   useEffect(() => {
-  const urlParameters = new URLSearchParams(window.location.search);
-  const selectedCategory = urlParameters.get("category");
-
-  if (selectedCategory) {
-    setCategory(selectedCategory);
-  }
-}, []);
-
-  useEffect(() => {
-    fetch("/api/products")
-      .then((r) => r.json())
-      .then((d) => setProducts(d.products || []))
-      .finally(() => setLoading(false));
-  }, []);
-const categories = useMemo(
-  () => [
-    "all",
-    ...Array.from(
-      new Set(
-        products
-          .map((p) => p.category)
-          .filter(Boolean)
-      )
-    ).sort((a, b) => a.localeCompare(b)),
-  ],
-  [products]
-);
-  const filtered = useMemo(() => {
-    let list = products;
-    if (category !== "all") {
-  list = list.filter(
-    (p) =>
-      typeof p.category === "string" &&
-      p.category.toLowerCase() === category.toLowerCase()
-  );
-}
-    if (search) {
-  const q = search.toLowerCase().trim();
-
-  list = list.filter((p) => {
-    const productName =
-      typeof p.name === "string"
-        ? p.name.toLowerCase()
-        : "";
-
-    const productCategory =
-      typeof p.category === "string"
-        ? p.category.toLowerCase()
-        : "";
-
-    return (
-      productName.includes(q) ||
-      productCategory.includes(q)
+    const urlParameters = new URLSearchParams(
+      window.location.search
     );
-  });
-}
+
+    const selectedCategory =
+      urlParameters.get("category");
+
+    if (selectedCategory) {
+      setCategory(selectedCategory);
+      setCollectionTab("all");
+    }
+  }, []);
+
+  /*
+   * Load products from the public products API.
+   */
+  useEffect(() => {
+    let active = true;
+
+    async function loadProducts() {
+      setLoading(true);
+      setLoadError("");
+
+      try {
+        const response = await fetch("/api/products");
+
+        if (!response.ok) {
+          throw new Error("Unable to load products.");
+        }
+
+        const data = await response.json();
+
+        if (active) {
+          setProducts(
+            Array.isArray(data.products)
+              ? data.products
+              : []
+          );
+        }
+      } catch {
+        if (active) {
+          setProducts([]);
+          setLoadError(
+            "We could not load the product collection. Please try again."
+          );
+        }
+      } finally {
+        if (active) {
+          setLoading(false);
+        }
+      }
+    }
+
+    loadProducts();
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  /*
+   * Create the category dropdown from the categories
+   * currently available in Supabase.
+   */
+  const categories = useMemo(() => {
+    const categoryList = products
+      .map((product) => product.category)
+      .filter(
+        (value): value is string =>
+          typeof value === "string" &&
+          value.trim().length > 0
+      )
+      .map((value) => value.trim());
+
+    return [
+      "all",
+      ...Array.from(new Set(categoryList)).sort(
+        (first, second) =>
+          first.localeCompare(second)
+      ),
+    ];
+  }, [products]);
+
+  /*
+   * Apply tab, category and text-search filters.
+   */
+  const filtered = useMemo(() => {
+    let list = [...products];
+
+    if (collectionTab === "bestseller") {
+      list = list.filter(isBestSeller);
+    }
+
+    if (collectionTab === "featured") {
+      list = list.filter(isFeaturedProduct);
+    }
+
+    if (category !== "all") {
+      list = list.filter(
+        (product) =>
+          typeof product.category === "string" &&
+          product.category.toLowerCase() ===
+            category.toLowerCase()
+      );
+    }
+
+    if (search.trim()) {
+      const query = search
+        .toLowerCase()
+        .trim();
+
+      list = list.filter((product) => {
+        const productName =
+          typeof product.name === "string"
+            ? product.name.toLowerCase()
+            : "";
+
+        const productCategory =
+          typeof product.category === "string"
+            ? product.category.toLowerCase()
+            : "";
+
+        const productDescription =
+          typeof product.description === "string"
+            ? product.description.toLowerCase()
+            : "";
+
+        return (
+          productName.includes(query) ||
+          productCategory.includes(query) ||
+          productDescription.includes(query)
+        );
+      });
+    }
+
     return list;
-  }, [products, category, search]);
+  }, [
+    products,
+    category,
+    collectionTab,
+    search,
+  ]);
 
-  const cartEntries = Object.entries(cart) as unknown as [string, number][];
-  const cartCount = cartEntries.reduce((sum, [, qty]) => sum + qty, 0);
-  const cartSubtotal = cartEntries.reduce((sum, [id, qty]) => {
-    const p = products.find((x) => x.id === Number(id));
-    return sum + (p ? p.price * qty : 0);
-  }, 0);
+  const cartEntries = Object.entries(cart).map(
+    ([id, quantity]) => ({
+      id: Number(id),
+      quantity,
+    })
+  );
 
-  function addToCart(id: number, qty = 1) {
-    setCart((c) => ({ ...c, [id]: (c[id] || 0) + qty }));
+  const cartCount = cartEntries.reduce(
+    (total, entry) =>
+      total + entry.quantity,
+    0
+  );
+
+  const cartSubtotal = cartEntries.reduce(
+    (total, entry) => {
+      const product = products.find(
+        (item) => item.id === entry.id
+      );
+
+      return (
+        total +
+        (product
+          ? product.price * entry.quantity
+          : 0)
+      );
+    },
+    0
+  );
+
+  function selectCollectionTab(tab: CollectionTab) {
+    setCollectionTab(tab);
+
+    /*
+     * The collection tabs are global filters, so clear
+     * any category selected from the homepage.
+     */
+    setCategory("all");
+    setCategoryOpen(false);
+
+    window.history.replaceState(
+      {},
+      "",
+      "/products"
+    );
   }
-  function changeCartQty(id: number, delta: number) {
-    setCart((c) => {
-      const next = { ...c, [id]: (c[id] || 0) + delta };
-      if (next[id] <= 0) delete next[id];
-      return next;
+
+  function selectCategory(
+    selectedCategory: string
+  ) {
+    setCategory(selectedCategory);
+    setCollectionTab("all");
+    setCategoryOpen(false);
+
+    if (selectedCategory === "all") {
+      window.history.replaceState(
+        {},
+        "",
+        "/products"
+      );
+
+      return;
+    }
+
+    window.history.replaceState(
+      {},
+      "",
+      `/products?category=${encodeURIComponent(
+        selectedCategory
+      )}`
+    );
+  }
+
+  function addToCart(
+    id: number,
+    quantity = 1
+  ) {
+    setCart((currentCart) => ({
+      ...currentCart,
+      [id]:
+        (currentCart[id] || 0) + quantity,
+    }));
+  }
+
+  function changeCartQty(
+    id: number,
+    amount: number
+  ) {
+    setCart((currentCart) => {
+      const nextCart = {
+        ...currentCart,
+        [id]:
+          (currentCart[id] || 0) + amount,
+      };
+
+      if (nextCart[id] <= 0) {
+        delete nextCart[id];
+      }
+
+      return nextCart;
     });
   }
+
   function removeFromCart(id: number) {
-    setCart((c) => {
-      const next = { ...c };
-      delete next[id];
-      return next;
+    setCart((currentCart) => {
+      const nextCart = {
+        ...currentCart,
+      };
+
+      delete nextCart[id];
+
+      return nextCart;
     });
   }
 
-  function openDetail(p: Product) {
-    setDetailProduct(p);
+  function openDetail(product: Product) {
+    setDetailProduct(product);
     setDetailImageIdx(0);
     setDetailQty(1);
   }
 
   function buildOrderMessage() {
-    const lines = cartEntries.map(([id, qty]) => {
-      const p = products.find((x) => x.id === Number(id))!;
-      return `• ${p.name} x${qty} — ${money(p.price * qty)}`;
-    });
+    const orderLines = cartEntries
+      .map((entry) => {
+        const product = products.find(
+          (item) => item.id === entry.id
+        );
+
+        if (!product) {
+          return null;
+        }
+
+        return `• ${product.name} x${
+          entry.quantity
+        } — ${money(
+          product.price * entry.quantity
+        )}`;
+      })
+      .filter(
+        (line): line is string =>
+          Boolean(line)
+      );
+
     return [
       "New order from NOOR website:",
-      `Name: ${custName || "(not provided)"}`,
-      `Phone: ${custPhone || "(not provided)"}`,
-      `Delivery address: ${custAddress || "(not provided)"}`,
+      `Name: ${
+        custName || "(not provided)"
+      }`,
+      `Phone: ${
+        custPhone || "(not provided)"
+      }`,
+      `Delivery address: ${
+        custAddress || "(not provided)"
+      }`,
       "",
       "Items:",
-      ...lines,
+      ...orderLines,
       "",
       `Total: ${money(cartSubtotal)}`,
     ].join("\n");
   }
 
-  function sendOrder(channel: "whatsapp" | "instagram") {
-    const msg = buildOrderMessage();
+  function sendOrder(
+    channel: "whatsapp" | "instagram"
+  ) {
+    const message = buildOrderMessage();
+
     if (channel === "whatsapp") {
-      window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, "_blank");
+      window.open(
+        `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
+          message
+        )}`,
+        "_blank",
+        "noopener,noreferrer"
+      );
     } else {
-      navigator.clipboard?.writeText(msg);
-      window.open(`https://instagram.com/${INSTAGRAM_HANDLE}`, "_blank");
-      alert("Order details copied — paste them into your Instagram DM.");
+      navigator.clipboard
+        ?.writeText(message)
+        .catch(() => undefined);
+
+      window.open(
+        `https://instagram.com/${INSTAGRAM_HANDLE}`,
+        "_blank",
+        "noopener,noreferrer"
+      );
+
+      alert(
+        "Order details copied. Paste them into your Instagram DM."
+      );
     }
+
     setCheckoutOpen(false);
+  }
+
+  function emptyStateTitle() {
+    if (collectionTab === "bestseller") {
+      return "No best sellers available yet";
+    }
+
+    if (collectionTab === "featured") {
+      return "No featured products available yet";
+    }
+
+    return "No products found";
   }
 
   return (
     <>
+      {/* Navigation */}
       <header>
         <div className="wrap header-row">
-          <a href="/" className="logo">NOOR</a>
-          <nav className="nav-links">
+          <a href="/" className="logo">
+            NOOR
+          </a>
+
+          <nav
+            className="nav-links"
+            aria-label="Main navigation"
+          >
             <a href="/">Home</a>
             <a href="/products">Products</a>
             <a href="/#about">About</a>
             <a href="/#contact">Contact</a>
           </nav>
+
           <div className="header-icons">
-            <button className="icon-btn" onClick={() => setCartOpen(true)} aria-label="Cart">
+            <button
+              type="button"
+              className="icon-btn"
+              onClick={() =>
+                setCartOpen(true)
+              }
+              aria-label={`Open cart with ${cartCount} item${
+                cartCount === 1 ? "" : "s"
+              }`}
+            >
               <svg viewBox="0 0 24 24">
                 <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" />
                 <path d="M3 6h18" />
                 <path d="M16 10a4 4 0 0 1-8 0" />
               </svg>
-              {cartCount > 0 && <span className="badge">{cartCount}</span>}
+
+              {cartCount > 0 && (
+                <span className="badge">
+                  {cartCount}
+                </span>
+              )}
             </button>
           </div>
         </div>
       </header>
 
-      <section className="section wrap">
-        <div className="section-head">
-          <div>
-            <div className="eyebrow">Full Collection</div>
-            <h2>Corporate Gift Essentials</h2>
+      {/* Catalog introduction */}
+      <section className="catalog-hero">
+        <div className="wrap catalog-hero-inner">
+          <p className="catalog-eyebrow">
+            OUR COLLECTION
+          </p>
+
+          <h1>
+            Browse <em>Catalog</em>
+          </h1>
+
+          <p className="catalog-description">
+            Explore our curated range of
+            premium customizable products.
+            From thoughtfully selected
+            corporate gifts to personalized
+            essentials created for memorable
+            occasions.
+          </p>
+
+          <div
+            className="catalog-tabs"
+            role="tablist"
+            aria-label="Product collections"
+          >
+            {COLLECTION_TABS.map((tab) => {
+              const isActive =
+                collectionTab === tab.id;
+
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={isActive}
+                  aria-controls="catalog-product-results"
+                  className={`catalog-tab ${
+                    isActive
+                      ? "catalog-tab-active"
+                      : ""
+                  }`}
+                  onClick={() =>
+                    selectCollectionTab(tab.id)
+                  }
+                >
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Product collection */}
+      <section
+        id="catalog-product-results"
+        className="catalog-products section wrap"
+        role="tabpanel"
+        aria-live="polite"
+      >
+        <div className="shop-toolbar">
+          <div className="search-box">
+            <input
+              type="search"
+              placeholder="Search products"
+              aria-label="Search products"
+              value={search}
+              onChange={(event) =>
+                setSearch(event.target.value)
+              }
+            />
+          </div>
+
+          <div className="category-menu">
+            <button
+              type="button"
+              className="category-btn"
+              aria-expanded={categoryOpen}
+              aria-haspopup="menu"
+              onClick={() =>
+                setCategoryOpen(
+                  (open) => !open
+                )
+              }
+            >
+              {category === "all"
+                ? "Categories"
+                : category}
+
+              <span aria-hidden="true">
+                ▾
+              </span>
+            </button>
+
+            {categoryOpen && (
+              <div
+                className="category-dropdown"
+                role="menu"
+              >
+                {categories.map(
+                  (categoryOption) => (
+                    <button
+                      key={categoryOption}
+                      type="button"
+                      role="menuitem"
+                      onClick={() =>
+                        selectCategory(
+                          categoryOption
+                        )
+                      }
+                      className={
+                        categoryOption ===
+                        category
+                          ? "active-category"
+                          : ""
+                      }
+                    >
+                      {categoryOption === "all"
+                        ? "All Categories"
+                        : categoryOption}
+                    </button>
+                  )
+                )}
+              </div>
+            )}
           </div>
         </div>
 
-        <div className="shop-toolbar">
-
-  <div className="search-box">
-    <input
-      type="text"
-      placeholder="Search products"
-      value={search}
-      onChange={(e) => setSearch(e.target.value)}
-    />
-  </div>
-
-
-  <div className="category-menu">
-
-    <button
-      className="category-btn"
-      onClick={() =>
-        setCategoryOpen(!categoryOpen)
-      }
-    >
-      {category === "all"
-        ? "Categories"
-        : category}
-
-      <span>
-        ▾
-      </span>
-
-    </button>
-
-
-    {categoryOpen && (
-
-      <div className="category-dropdown">
-
-        {categories.map((c)=>(
-
-          <button
-            key={c}
-            onClick={()=>{
-              setCategory(c);
-              setCategoryOpen(false);
-            }}
-            className={
-              c === category
-              ? "active-category"
-              : ""
-            }
-          >
-
-            {c === "all"
-              ? "All Products"
-              : c}
-
-          </button>
-
-        ))}
-
-      </div>
-
-    )}
-
-  </div>
-
-</div>
         {category !== "all" && (
-  <div className="active-category-bar">
-    <span>
-      Showing products in: <strong>{category}</strong>
-    </span>
+          <div className="active-category-bar">
+            <span>
+              Showing products in:{" "}
+              <strong>{category}</strong>
+            </span>
 
-    <button
-      type="button"
-      onClick={() => {
-        setCategory("all");
-        window.history.replaceState({}, "", "/products");
-      }}
-    >
-      Clear filter
-    </button>
-  </div>
-)}
-
+            <button
+              type="button"
+              onClick={() =>
+                selectCategory("all")
+              }
+            >
+              Clear filter
+            </button>
+          </div>
+        )}
 
         {loading ? (
-          <p style={{ color: "var(--ink-soft)" }}>Loading products…</p>
+          <p
+            style={{
+              color: "var(--ink-soft)",
+            }}
+          >
+            Loading products…
+          </p>
+        ) : loadError ? (
+          <div className="catalog-empty-state">
+            <h3>
+              Product collection unavailable
+            </h3>
+
+            <p>{loadError}</p>
+
+            <button
+              type="button"
+              className="btn btn-outline"
+              onClick={() =>
+                window.location.reload()
+              }
+            >
+              Try Again
+            </button>
+          </div>
         ) : filtered.length === 0 ? (
-          <p style={{ color: "var(--ink-soft)" }}>No products match — try a different search or filter.</p>
+          <div className="catalog-empty-state">
+            <h3>{emptyStateTitle()}</h3>
+
+            <p>
+              {collectionTab === "all"
+                ? "Try changing your search or category filter."
+                : "Products will appear here after they are assigned this badge in the admin area."}
+            </p>
+
+            {collectionTab !== "all" && (
+              <button
+                type="button"
+                className="btn btn-outline"
+                onClick={() =>
+                  selectCollectionTab("all")
+                }
+              >
+                View All Products
+              </button>
+            )}
+          </div>
         ) : (
           <div className="shop-grid">
-            {filtered.map((p) => (
-              <div className="card" key={p.id}>
-                <div className="card-media" onClick={() => openDetail(p)}>
+            {filtered.map((product) => (
+              <article
+                className="card"
+                key={product.id}
+              >
+                <div
+                  className="card-media"
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`View ${product.name}`}
+                  onClick={() =>
+                    openDetail(product)
+                  }
+                  onKeyDown={(event) => {
+                    if (
+                      event.key === "Enter" ||
+                      event.key === " "
+                    ) {
+                      event.preventDefault();
+                      openDetail(product);
+                    }
+                  }}
+                >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={imagesFor(p)[0]} alt={p.name} />
+                  <img
+                    src={imagesFor(product)[0]}
+                    alt={product.name}
+                  />
                 </div>
+
                 <div className="card-body">
-                  <h3 onClick={() => openDetail(p)}>{p.name}</h3>
-                  <div className="card-desc">{p.description}</div>
-                  <div className="card-foot">
-                    <span className="price">{money(p.price)}</span>
+                  <h3
+                    role="button"
+                    tabIndex={0}
+                    onClick={() =>
+                      openDetail(product)
+                    }
+                    onKeyDown={(event) => {
+                      if (
+                        event.key === "Enter" ||
+                        event.key === " "
+                      ) {
+                        event.preventDefault();
+                        openDetail(product);
+                      }
+                    }}
+                  >
+                    {product.name}
+                  </h3>
+
+                  <div className="card-desc">
+                    {product.description}
                   </div>
+
+                  <div className="card-foot">
+                    <span className="price">
+                      {money(product.price)}
+                    </span>
+                  </div>
+
                   <div className="card-actions">
-                    <button className="btn btn-sm btn-dark" onClick={() => addToCart(p.id)}>
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-dark"
+                      onClick={() =>
+                        addToCart(product.id)
+                      }
+                    >
                       Add to Cart
                     </button>
-                    <button className="btn btn-sm btn-outline" onClick={() => openDetail(p)}>
+
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-outline"
+                      onClick={() =>
+                        openDetail(product)
+                      }
+                    >
                       View
                     </button>
                   </div>
                 </div>
-              </div>
+              </article>
             ))}
           </div>
         )}
@@ -329,55 +792,179 @@ const categories = useMemo(
       {detailProduct && (
         <div
           className="overlay-bg"
-          onClick={(e) => e.target === e.currentTarget && setDetailProduct(null)}
+          role="presentation"
+          onClick={(event) => {
+            if (
+              event.target ===
+              event.currentTarget
+            ) {
+              setDetailProduct(null);
+            }
+          }}
         >
-          <div className="detail-panel">
-            <button className="detail-close" onClick={() => setDetailProduct(null)}>
-              <svg viewBox="0 0 24 24" style={{ width: 16, height: 16, stroke: "var(--ink)", fill: "none", strokeWidth: 1.5 }}>
+          <div
+            className="detail-panel"
+            role="dialog"
+            aria-modal="true"
+            aria-label={`${detailProduct.name} product details`}
+          >
+            <button
+              type="button"
+              className="detail-close"
+              onClick={() =>
+                setDetailProduct(null)
+              }
+              aria-label="Close product details"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                style={{
+                  width: 16,
+                  height: 16,
+                  stroke: "var(--ink)",
+                  fill: "none",
+                  strokeWidth: 1.5,
+                }}
+              >
                 <path d="M18 6 6 18M6 6l12 12" />
               </svg>
             </button>
+
             <div className="detail-grid">
               <div className="detail-media">
                 <div className="gallery-main">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={imagesFor(detailProduct)[detailImageIdx]} alt={detailProduct.name} />
+                  <img
+                    src={
+                      imagesFor(
+                        detailProduct
+                      )[detailImageIdx]
+                    }
+                    alt={detailProduct.name}
+                  />
                 </div>
+
                 <div className="gallery-thumbs">
-                  {imagesFor(detailProduct).map((img, i) => (
+                  {imagesFor(
+                    detailProduct
+                  ).map((image, index) => (
                     <button
-                      key={i}
-                      className={`thumb ${i === detailImageIdx ? "active" : ""}`}
-                      onClick={() => setDetailImageIdx(i)}
+                      key={`${image}-${index}`}
+                      type="button"
+                      className={`thumb ${
+                        index ===
+                        detailImageIdx
+                          ? "active"
+                          : ""
+                      }`}
+                      onClick={() =>
+                        setDetailImageIdx(
+                          index
+                        )
+                      }
+                      aria-label={`View image ${
+                        index + 1
+                      } of ${
+                        detailProduct.name
+                      }`}
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={img} alt={`${detailProduct.name} view ${i + 1}`} />
+                      <img
+                        src={image}
+                        alt=""
+                      />
                     </button>
                   ))}
                 </div>
               </div>
+
               <div className="detail-info">
                 <div className="eyebrow">
                   {detailProduct.category}
-                  {detailProduct.badge ? ` · ${detailProduct.badge}` : ""}
+
+                  {detailProduct.badge
+                    ? ` · ${detailProduct.badge}`
+                    : ""}
                 </div>
-                <h2 style={{ fontSize: 26, fontWeight: 400, margin: "8px 0" }}>{detailProduct.name}</h2>
-                <div className="detail-price">{money(detailProduct.price)}</div>
-                <p className="detail-desc">{detailProduct.long_description || detailProduct.description}</p>
+
+                <h2
+                  style={{
+                    fontSize: 26,
+                    fontWeight: 400,
+                    margin: "8px 0",
+                  }}
+                >
+                  {detailProduct.name}
+                </h2>
+
+                <div className="detail-price">
+                  {money(
+                    detailProduct.price
+                  )}
+                </div>
+
+                <p className="detail-desc">
+                  {detailProduct.long_description ||
+                    detailProduct.description}
+                </p>
+
                 <ul className="detail-list">
-                  {(detailProduct.features || []).map((f, i) => (
-                    <li key={i}>{f}</li>
-                  ))}
+                  {(
+                    detailProduct.features ||
+                    []
+                  ).map(
+                    (feature, index) => (
+                      <li
+                        key={`${feature}-${index}`}
+                      >
+                        {feature}
+                      </li>
+                    )
+                  )}
                 </ul>
+
                 <div className="qty-control">
-                  <button onClick={() => setDetailQty((q) => Math.max(1, q - 1))}>−</button>
+                  <button
+                    type="button"
+                    aria-label="Decrease quantity"
+                    onClick={() =>
+                      setDetailQty(
+                        (quantity) =>
+                          Math.max(
+                            1,
+                            quantity - 1
+                          )
+                      )
+                    }
+                  >
+                    −
+                  </button>
+
                   <span>{detailQty}</span>
-                  <button onClick={() => setDetailQty((q) => q + 1)}>+</button>
+
+                  <button
+                    type="button"
+                    aria-label="Increase quantity"
+                    onClick={() =>
+                      setDetailQty(
+                        (quantity) =>
+                          quantity + 1
+                      )
+                    }
+                  >
+                    +
+                  </button>
                 </div>
+
                 <button
+                  type="button"
                   className="btn btn-dark btn-full"
                   onClick={() => {
-                    addToCart(detailProduct.id, detailQty);
+                    addToCart(
+                      detailProduct.id,
+                      detailQty
+                    );
+
                     setDetailProduct(null);
                     setCartOpen(true);
                   }}
@@ -393,48 +980,154 @@ const categories = useMemo(
       {/* Cart drawer */}
       {cartOpen && (
         <>
-          <div className="drawer-bg" onClick={() => setCartOpen(false)} />
-          <div className="drawer">
+          <div
+            className="drawer-bg"
+            onClick={() =>
+              setCartOpen(false)
+            }
+          />
+
+          <div
+            className="drawer"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Shopping cart"
+          >
             <div className="drawer-head">
-              <h3 style={{ margin: 0, fontWeight: 400 }}>Your Bag</h3>
-              <button className="icon-btn" onClick={() => setCartOpen(false)}>
-                <svg viewBox="0 0 24 24" style={{ width: 18, height: 18, stroke: "var(--ink)", fill: "none", strokeWidth: 1.5 }}>
+              <h3
+                style={{
+                  margin: 0,
+                  fontWeight: 400,
+                }}
+              >
+                Your Bag
+              </h3>
+
+              <button
+                type="button"
+                className="icon-btn"
+                onClick={() =>
+                  setCartOpen(false)
+                }
+                aria-label="Close shopping cart"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  style={{
+                    width: 18,
+                    height: 18,
+                    stroke: "var(--ink)",
+                    fill: "none",
+                    strokeWidth: 1.5,
+                  }}
+                >
                   <path d="M18 6 6 18M6 6l12 12" />
                 </svg>
               </button>
             </div>
+
             <div className="drawer-items">
               {cartEntries.length === 0 ? (
                 <div className="empty-state">
                   Your bag is empty.
                   <br />
                   <br />
-                  <button className="btn btn-dark" onClick={() => setCartOpen(false)}>
+
+                  <button
+                    type="button"
+                    className="btn btn-dark"
+                    onClick={() =>
+                      setCartOpen(false)
+                    }
+                  >
                     Start Shopping
                   </button>
                 </div>
               ) : (
-                cartEntries.map(([id, qty]) => {
-                  const p = products.find((x) => x.id === Number(id));
-                  if (!p) return null;
+                cartEntries.map((entry) => {
+                  const product =
+                    products.find(
+                      (item) =>
+                        item.id === entry.id
+                    );
+
+                  if (!product) {
+                    return null;
+                  }
+
                   return (
-                    <div className="cart-row" key={id}>
+                    <div
+                      className="cart-row"
+                      key={entry.id}
+                    >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={imagesFor(p)[0]} alt={p.name} />
+                      <img
+                        src={
+                          imagesFor(
+                            product
+                          )[0]
+                        }
+                        alt={product.name}
+                      />
+
                       <div className="cart-row-info">
                         <div className="cart-row-top">
-                          <span>{p.name}</span>
-                          <span>{money(p.price * qty)}</span>
+                          <span>
+                            {product.name}
+                          </span>
+
+                          <span>
+                            {money(
+                              product.price *
+                                entry.quantity
+                            )}
+                          </span>
                         </div>
+
                         <div className="cart-row-controls">
                           <div className="qty-control">
-                            <button onClick={() => changeCartQty(p.id, -1)}>−</button>
-                            <span>{qty}</span>
-                            <button onClick={() => changeCartQty(p.id, 1)}>+</button>
+                            <button
+                              type="button"
+                              aria-label={`Decrease ${product.name} quantity`}
+                              onClick={() =>
+                                changeCartQty(
+                                  product.id,
+                                  -1
+                                )
+                              }
+                            >
+                              −
+                            </button>
+
+                            <span>
+                              {entry.quantity}
+                            </span>
+
+                            <button
+                              type="button"
+                              aria-label={`Increase ${product.name} quantity`}
+                              onClick={() =>
+                                changeCartQty(
+                                  product.id,
+                                  1
+                                )
+                              }
+                            >
+                              +
+                            </button>
                           </div>
-                          <a href="#" className="remove-link" onClick={(e) => { e.preventDefault(); removeFromCart(p.id); }}>
+
+                          <button
+                            type="button"
+                            className="remove-link"
+                            onClick={() =>
+                              removeFromCart(
+                                product.id
+                              )
+                            }
+                          >
                             Remove
-                          </a>
+                          </button>
                         </div>
                       </div>
                     </div>
@@ -442,13 +1135,23 @@ const categories = useMemo(
                 })
               )}
             </div>
+
             {cartEntries.length > 0 && (
               <div className="drawer-foot">
                 <div className="subtotal-row">
                   <span>Subtotal</span>
-                  <span>{money(cartSubtotal)}</span>
+                  <span>
+                    {money(cartSubtotal)}
+                  </span>
                 </div>
-                <button className="btn btn-gold btn-full" onClick={() => setCheckoutOpen(true)}>
+
+                <button
+                  type="button"
+                  className="btn btn-gold btn-full"
+                  onClick={() =>
+                    setCheckoutOpen(true)
+                  }
+                >
                   Checkout
                 </button>
               </div>
@@ -459,37 +1162,134 @@ const categories = useMemo(
 
       {/* Checkout modal */}
       {checkoutOpen && (
-        <div className="modal-bg">
-          <div className="modal">
+        <div
+          className="modal-bg"
+          role="presentation"
+        >
+          <div
+            className="modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="checkout-heading"
+          >
             <button
-              style={{ position: "absolute", top: 16, right: 16 }}
+              type="button"
+              style={{
+                position: "absolute",
+                top: 16,
+                right: 16,
+              }}
               className="icon-btn"
-              onClick={() => setCheckoutOpen(false)}
+              onClick={() =>
+                setCheckoutOpen(false)
+              }
+              aria-label="Close checkout"
             >
-              <svg viewBox="0 0 24 24" style={{ width: 16, height: 16, stroke: "var(--ink)", fill: "none", strokeWidth: 1.5 }}>
+              <svg
+                viewBox="0 0 24 24"
+                style={{
+                  width: 16,
+                  height: 16,
+                  stroke: "var(--ink)",
+                  fill: "none",
+                  strokeWidth: 1.5,
+                }}
+              >
                 <path d="M18 6 6 18M6 6l12 12" />
               </svg>
             </button>
-            <h3 style={{ margin: "0 0 10px", fontWeight: 400, fontSize: 22 }}>Confirm your order</h3>
-            <p style={{ color: "var(--ink-soft)", fontSize: 13.5, marginBottom: 20 }}>
-              We&apos;ll pre-fill your order as a message — just hit send once WhatsApp opens.
+
+            <h3
+              id="checkout-heading"
+              style={{
+                margin: "0 0 10px",
+                fontWeight: 400,
+                fontSize: 22,
+              }}
+            >
+              Confirm your order
+            </h3>
+
+            <p
+              style={{
+                color: "var(--ink-soft)",
+                fontSize: 13.5,
+                marginBottom: 20,
+              }}
+            >
+              We&apos;ll pre-fill your
+              order as a message. Just send
+              it once WhatsApp opens.
             </p>
+
             <div className="field">
-              <label>Full name</label>
-              <input value={custName} onChange={(e) => setCustName(e.target.value)} />
+              <label htmlFor="customer-name">
+                Full name
+              </label>
+
+              <input
+                id="customer-name"
+                value={custName}
+                onChange={(event) =>
+                  setCustName(
+                    event.target.value
+                  )
+                }
+              />
             </div>
+
             <div className="field">
-              <label>Phone number</label>
-              <input value={custPhone} onChange={(e) => setCustPhone(e.target.value)} />
+              <label htmlFor="customer-phone">
+                Phone number
+              </label>
+
+              <input
+                id="customer-phone"
+                type="tel"
+                value={custPhone}
+                onChange={(event) =>
+                  setCustPhone(
+                    event.target.value
+                  )
+                }
+              />
             </div>
+
             <div className="field">
-              <label>Delivery address</label>
-              <textarea rows={2} value={custAddress} onChange={(e) => setCustAddress(e.target.value)} />
+              <label htmlFor="customer-address">
+                Delivery address
+              </label>
+
+              <textarea
+                id="customer-address"
+                rows={2}
+                value={custAddress}
+                onChange={(event) =>
+                  setCustAddress(
+                    event.target.value
+                  )
+                }
+              />
             </div>
-            <button className="btn btn-gold btn-full" onClick={() => sendOrder("whatsapp")}>
-              Pay via WhatsApp
+
+            <button
+              type="button"
+              className="btn btn-gold btn-full"
+              onClick={() =>
+                sendOrder("whatsapp")
+              }
+            >
+              Send Order via WhatsApp
             </button>
-            <button className="btn btn-outline btn-full" style={{ marginTop: 10 }} onClick={() => sendOrder("instagram")}>
+
+            <button
+              type="button"
+              className="btn btn-outline btn-full"
+              style={{ marginTop: 10 }}
+              onClick={() =>
+                sendOrder("instagram")
+              }
+            >
               Confirm via Instagram DM
             </button>
           </div>

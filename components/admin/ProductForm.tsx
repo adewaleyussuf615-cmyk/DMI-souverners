@@ -142,11 +142,15 @@ export default function ProductForm({ initial }: Props) {
 
       <div className="field">
         <label>Badge</label>
-        <select value={badge} onChange={(e) => setBadge(e.target.value)}>
-          <option value="">None</option>
-          <option value="Bestseller">Bestseller</option>
-          <option value="New">New</option>
-        </select>
+       <select
+  value={badge}
+  onChange={(e) => setBadge(e.target.value)}
+>
+  <option value="">None</option>
+  <option value="Bestseller">Best Seller</option>
+  <option value="Featured">Featured Product</option>
+  <option value="New">New Product</option>
+</select>
       </div>
 
       <div className="field">
