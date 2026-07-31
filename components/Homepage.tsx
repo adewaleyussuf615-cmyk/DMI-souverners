@@ -167,7 +167,7 @@ export default function Homepage() {
         <div className="header-row wrap">
           <a href="/" className="logo">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="https://drive.google.com/file/d/1F-K-eGThjx-eo4b4bF4I9u7-4F9Iz2AO/view?usp=sharing" alt="Gifted Delites" />
+            <img src="/images/logo.jpg" alt="Gifted Delites" />
           </a>
 
           <nav className="nav-links" aria-label="Main navigation">
