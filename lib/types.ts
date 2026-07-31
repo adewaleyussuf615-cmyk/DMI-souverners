@@ -3,6 +3,7 @@ export type Product = {
   name: string;
   price: number;
   category: string;
+  catalogs: string[];
   rating: number | null;
   moq: string | null;
   weight: string | null;

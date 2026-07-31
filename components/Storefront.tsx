@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import type { Product } from "@/lib/types";
+import { PRODUCT_CATALOGS } from "@/lib/catalogs";
 
 const WHATSAPP_NUMBER =
   process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "2349126105778";
@@ -22,26 +23,6 @@ const COLLECTION_TABS = [
     id: "all",
     label: "All Products",
   },
-] as const;
-
-const PRODUCT_CATALOGS = [
-  "Executive & Luxury Gifts",
-  "Promotional Merchandise",
-  "Awards & Recognition",
-  "Apparel & Wearables",
-  "Bags & Pouches",
-  "Beauty Products",
-  "Gadgets & Electronics",
-  "Lifestyle & Household Items",
-  "Stationery",
-  "Travel Accessories",
-  "Affordable Gifts",
-  "Premium & Luxury Gift Collections",
-  "Door Gifts",
-  "Conference & Event Gifts",
-  "Client Appreciation Gifts",
-  "Employee Recognition Gifts",
-  "Customized Corporate Gift Sets",
 ] as const;
 
 type CollectionTab = (typeof COLLECTION_TABS)[number]["id"];
@@ -196,24 +177,7 @@ export default function Storefront() {
    * Create the category dropdown from the categories
    * currently available in Supabase.
    */
-  const categories = useMemo(() => {
-    const categoryList = products
-      .map((product) => product.category)
-      .filter(
-        (value): value is string =>
-          typeof value === "string" &&
-          value.trim().length > 0
-      )
-      .map((value) => value.trim());
-
-    return [
-      "all",
-      ...Array.from(new Set(categoryList)).sort(
-        (first, second) =>
-          first.localeCompare(second)
-      ),
-    ];
-  }, [products]);
+  const categories = ["all", ...PRODUCT_CATALOGS];
 
   /*
    * Apply tab, category and text-search filters.
@@ -230,12 +194,19 @@ export default function Storefront() {
     }
 
     if (category !== "all") {
-      list = list.filter(
-        (product) =>
-          typeof product.category === "string" &&
-          product.category.toLowerCase() ===
-            category.toLowerCase()
-      );
+      const selectedCatalog = category.toLowerCase();
+
+      list = list.filter((product) => {
+        const catalogs = Array.isArray(product.catalogs)
+          ? product.catalogs
+          : [];
+
+        return (
+          catalogs.some(
+            (catalog) => catalog.toLowerCase() === selectedCatalog
+          ) || product.category.toLowerCase() === selectedCatalog
+        );
+      });
     }
 
     if (search.trim()) {
@@ -259,9 +230,14 @@ export default function Storefront() {
             ? product.description.toLowerCase()
             : "";
 
+        const productCatalogs = Array.isArray(product.catalogs)
+          ? product.catalogs.join(" ").toLowerCase()
+          : "";
+
         return (
           productName.includes(query) ||
           productCategory.includes(query) ||
+          productCatalogs.includes(query) ||
           productDescription.includes(query)
         );
       });
@@ -600,8 +576,8 @@ export default function Storefront() {
                 className="about-category-item"
                 key={catalog}
                 onClick={() => {
-                  setSearch(catalog);
-                  setCollectionTab("all");
+                  setSearch("");
+                  selectCategory(catalog);
                   document
                     .getElementById("catalog-product-results")
                     ?.scrollIntoView({ behavior: "smooth" });

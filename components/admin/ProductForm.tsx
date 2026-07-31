@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Product } from "@/lib/types";
+import { PRODUCT_CATALOGS } from "@/lib/catalogs";
 
 type Props = {
   initial?: Product;
@@ -15,6 +16,7 @@ export default function ProductForm({ initial }: Props) {
   const [name, setName] = useState(initial?.name || "");
   const [price, setPrice] = useState(initial?.price?.toString() || "");
   const [category, setCategory] = useState(initial?.category || "");
+  const [catalogs, setCatalogs] = useState<string[]>(initial?.catalogs || []);
   const [rating, setRating] = useState(initial?.rating?.toString() || "4.7");
   const [moq, setMoq] = useState(initial?.moq || "");
   const [weight, setWeight] = useState(initial?.weight || "");
@@ -64,6 +66,7 @@ export default function ProductForm({ initial }: Props) {
       name,
       price: Number(price),
       category,
+      catalogs,
       rating: Number(rating),
       moq,
       weight,
@@ -122,6 +125,28 @@ export default function ProductForm({ initial }: Props) {
         <div className="field">
           <label>Weight</label>
           <input value={weight} onChange={(e) => setWeight(e.target.value)} placeholder="e.g. 0.5 kg" />
+        </div>
+      </div>
+
+      <div className="field">
+        <label>Product catalogs (select all that apply)</label>
+        <div className="catalog-checkbox-grid">
+          {PRODUCT_CATALOGS.map((catalog) => (
+            <label key={catalog} className="catalog-checkbox">
+              <input
+                type="checkbox"
+                checked={catalogs.includes(catalog)}
+                onChange={(event) =>
+                  setCatalogs((current) =>
+                    event.target.checked
+                      ? [...current, catalog]
+                      : current.filter((item) => item !== catalog)
+                  )
+                }
+              />
+              <span>{catalog}</span>
+            </label>
+          ))}
         </div>
       </div>
 

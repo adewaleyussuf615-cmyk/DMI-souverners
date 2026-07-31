@@ -20,6 +20,7 @@ export async function POST(req: NextRequest) {
     name: body.name,
     price: Number(body.price),
     category: body.category || "Uncategorized",
+    catalogs: Array.isArray(body.catalogs) ? body.catalogs : [],
     rating: body.rating ? Number(body.rating) : 4.7,
     moq: body.moq || null,
     weight: body.weight || null,

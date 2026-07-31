@@ -1,11 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { PRODUCT_CATALOGS } from "@/lib/catalogs";
 
 type ApiProduct = {
   id?: number;
   name?: string;
   category?: string;
+  catalogs?: string[];
   images?: string[];
 };
 
@@ -14,32 +16,9 @@ type CategoryCard = {
   image: string;
 };
 
-const FALLBACK_CATEGORY_CARDS: CategoryCard[] = [
-  {
-    name: "Corporate & Bulk",
-    image: "/images/gifted-delites-about.webp",
-  },
-  {
-    name: "Executive Gifts",
-    image: "/images/gifted-delites-hero.webp",
-  },
-  {
-    name: "Luxury Gift Boxes",
-    image: "/images/gifted-delites-about.webp",
-  },
-  {
-    name: "Branded Stationery",
-    image: "/images/gifted-delites-hero.webp",
-  },
-  {
-    name: "Event Merchandise",
-    image: "/images/gifted-delites-about.webp",
-  },
-  {
-    name: "Custom Packaging",
-    image: "/images/gifted-delites-hero.webp",
-  },
-];
+const FALLBACK_CATEGORY_CARDS: CategoryCard[] = PRODUCT_CATALOGS.map(
+  (name) => ({ name, image: createFallbackImage(name) })
+);
 
 function createFallbackImage(category: string) {
   return category.length % 2 === 0
@@ -77,15 +56,6 @@ export default function Homepage() {
         const categoryMap = new Map<string, string>();
 
         products.forEach((product) => {
-          const category =
-            typeof product.category === "string"
-              ? product.category.trim()
-              : "";
-
-          if (!category || categoryMap.has(category)) {
-            return;
-          }
-
           const productImage = Array.isArray(product.images)
             ? product.images.find(
                 (image) =>
@@ -93,27 +63,33 @@ export default function Homepage() {
               )
             : undefined;
 
-          categoryMap.set(
-            category,
-            productImage || createFallbackImage(category)
-          );
+          const productCatalogs = Array.isArray(product.catalogs)
+            ? product.catalogs
+            : [];
+
+          productCatalogs.forEach((catalog) => {
+            const category = catalog.trim();
+
+            if (category && !categoryMap.has(category)) {
+              categoryMap.set(
+                category,
+                productImage || createFallbackImage(category)
+              );
+            }
+          });
         });
 
-        const sortedCategories = Array.from(categoryMap.keys()).sort((a, b) =>
-          a.localeCompare(b)
+        const sortedCategories = [...PRODUCT_CATALOGS];
+
+        setCategories(sortedCategories);
+
+        setCategoryCards(
+          sortedCategories.map((category) => ({
+            name: category,
+            image:
+              categoryMap.get(category) || createFallbackImage(category),
+          }))
         );
-
-        if (sortedCategories.length > 0) {
-          setCategories(sortedCategories);
-
-          setCategoryCards(
-            sortedCategories.map((category) => ({
-              name: category,
-              image:
-                categoryMap.get(category) || createFallbackImage(category),
-            }))
-          );
-        }
       } catch {
         setCategories(
           FALLBACK_CATEGORY_CARDS.map((category) => category.name)

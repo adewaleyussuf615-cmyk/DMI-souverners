@@ -41,6 +41,13 @@ export async function GET() {
         item.Category ??
         "Uncategorized";
 
+      const catalogs = Array.isArray(item.catalogs)
+        ? item.catalogs.filter(
+            (catalog): catalog is string =>
+              typeof catalog === "string" && catalog.trim().length > 0
+          )
+        : [];
+
      const images = [
   ...(Array.isArray(item.images) ? item.images : []),
 
@@ -71,6 +78,10 @@ export async function GET() {
         ).trim(),
         price: Number(priceValue) || 0,
         category: String(category || "Uncategorized").trim(),
+        catalogs:
+          catalogs.length > 0
+            ? catalogs.map((catalog) => catalog.trim())
+            : [String(category || "Uncategorized").trim()],
         images,
         features: Array.isArray(item.features)
           ? item.features
