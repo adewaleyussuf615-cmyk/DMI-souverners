@@ -43,7 +43,7 @@ export async function GET() {
 
       const catalogs = Array.isArray(item.catalogs)
         ? item.catalogs.filter(
-            (catalog): catalog is string =>
+            (catalog: unknown): catalog is string =>
               typeof catalog === "string" && catalog.trim().length > 0
           )
         : [];
@@ -80,7 +80,7 @@ export async function GET() {
         category: String(category || "Uncategorized").trim(),
         catalogs:
           catalogs.length > 0
-            ? catalogs.map((catalog) => catalog.trim())
+            ? catalogs.map((catalog: string) => catalog.trim())
             : [String(category || "Uncategorized").trim()],
         images,
         features: Array.isArray(item.features)
