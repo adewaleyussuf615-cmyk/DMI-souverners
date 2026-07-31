@@ -4,10 +4,10 @@ import { useEffect, useMemo, useState } from "react";
 import type { Product } from "@/lib/types";
 
 const WHATSAPP_NUMBER =
-  process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "2348000000000";
+  process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "2349126105778";
 
 const INSTAGRAM_HANDLE =
-  process.env.NEXT_PUBLIC_INSTAGRAM_HANDLE || "yourusername";
+  process.env.NEXT_PUBLIC_INSTAGRAM_HANDLE || "manestyle.lagos";
 
 const COLLECTION_TABS = [
   {
@@ -22,6 +22,26 @@ const COLLECTION_TABS = [
     id: "all",
     label: "All Products",
   },
+] as const;
+
+const PRODUCT_CATALOGS = [
+  "Executive & Luxury Gifts",
+  "Promotional Merchandise",
+  "Awards & Recognition",
+  "Apparel & Wearables",
+  "Bags & Pouches",
+  "Beauty Products",
+  "Gadgets & Electronics",
+  "Lifestyle & Household Items",
+  "Stationery",
+  "Travel Accessories",
+  "Affordable Gifts",
+  "Premium & Luxury Gift Collections",
+  "Door Gifts",
+  "Conference & Event Gifts",
+  "Client Appreciation Gifts",
+  "Employee Recognition Gifts",
+  "Customized Corporate Gift Sets",
 ] as const;
 
 type CollectionTab = (typeof COLLECTION_TABS)[number]["id"];
@@ -50,7 +70,9 @@ function isFeaturedProduct(product: Product) {
 }
 
 const PLACEHOLDER = (seed: string, number: number) =>
-  `https://picsum.photos/seed/${seed}-${number}/600/600`;
+  number % 2 === 0
+    ? "/images/gifted-delites-hero.webp"
+    : "/images/gifted-delites-about.webp";
 
 function imagesFor(product: Product) {
   const validImages = Array.isArray(product.images)
@@ -396,7 +418,7 @@ export default function Storefront() {
       );
 
     return [
-      "New order from NOOR website:",
+      "New order from Gifted Delites website:",
       `Name: ${
         custName || "(not provided)"
       }`,
@@ -464,7 +486,11 @@ export default function Storefront() {
       <header>
         <div className="wrap header-row">
           <a href="/" className="logo">
-            NOOR
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/images/gifted-delites-logo.jpg"
+              alt="Gifted Delites — Spreading joy and goodwill"
+            />
           </a>
 
           <nav
@@ -472,8 +498,9 @@ export default function Storefront() {
             aria-label="Main navigation"
           >
             <a href="/">Home</a>
-            <a href="/products">Products</a>
-            <a href="/#about">About</a>
+            <a href="/products" aria-current="page">Product Catalogs</a>
+            <a href="/about">About</a>
+            <a href="/services">Our Services</a>
             <a href="/#contact">Contact</a>
           </nav>
 
@@ -512,16 +539,13 @@ export default function Storefront() {
           </p>
 
           <h1>
-            Browse <em>Catalog</em>
+            Find a Gift <em>Worth Remembering</em>
           </h1>
 
           <p className="catalog-description">
-            Explore our curated range of
-            premium customizable products.
-            From thoughtfully selected
-            corporate gifts to personalized
-            essentials created for memorable
-            occasions.
+            Explore personalised keepsakes, premium corporate gifts and
+            custom-branded essentials prepared to make every recipient feel
+            valued.
           </p>
 
           <div
@@ -554,6 +578,45 @@ export default function Storefront() {
               );
             })}
           </div>
+        </div>
+      </section>
+
+      <section className="product-catalog-list section">
+        <div className="wrap">
+          <div className="about-section-heading">
+            <p className="eyebrow">OUR PRODUCT CATALOGS</p>
+            <h2>Products for Every Gifting Occasion</h2>
+            <p>
+              We source and customize a wide variety of corporate and
+              promotional products. Select a catalog below or browse the live
+              collection.
+            </p>
+          </div>
+
+          <div className="about-category-grid">
+            {PRODUCT_CATALOGS.map((catalog) => (
+              <button
+                type="button"
+                className="about-category-item"
+                key={catalog}
+                onClick={() => {
+                  setSearch(catalog);
+                  setCollectionTab("all");
+                  document
+                    .getElementById("catalog-product-results")
+                    ?.scrollIntoView({ behavior: "smooth" });
+                }}
+              >
+                <span aria-hidden="true">→</span>
+                {catalog}
+              </button>
+            ))}
+          </div>
+
+          <p className="about-category-note">
+            Cannot find the product you are looking for? Let us know and our
+            sourcing team will locate the ideal solution for your needs.
+          </p>
         </div>
       </section>
 

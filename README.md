@@ -1,4 +1,4 @@
-# NOOR Store — Setup Guide
+# Gifted Delites Store — Setup Guide
 
 A storefront where customers browse products and check out via WhatsApp/Instagram,
 plus a password-protected `/admin` area where staff add, edit, and delete products
@@ -42,7 +42,7 @@ This guide assumes no prior experience with Supabase or Vercel. It takes about 2
    | `NEXT_PUBLIC_WHATSAPP_NUMBER` | your WhatsApp number, digits only, international format (e.g. `2348012345678`) |
    | `NEXT_PUBLIC_INSTAGRAM_HANDLE` | your Instagram username |
 
-4. Click **Deploy**. After a couple of minutes you'll get a live URL like `noor-store.vercel.app`.
+4. Click **Deploy**. After a couple of minutes you will receive your live store URL.
 
 That's it — your storefront is live at that URL, and staff can manage products at `yourdomain.com/admin`.
 

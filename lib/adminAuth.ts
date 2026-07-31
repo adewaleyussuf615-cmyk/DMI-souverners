@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 
-export const ADMIN_COOKIE_NAME = "noor_admin_session";
+export const ADMIN_COOKIE_NAME = "gifted_delites_admin_session";
 
 // The cookie is set to SESSION_SECRET (a random string you generate yourself,
 // see .env.example) only after the correct ADMIN_PASSWORD is submitted.

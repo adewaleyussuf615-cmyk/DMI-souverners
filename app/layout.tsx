@@ -1,8 +1,16 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "NOOR — Corporate Gifting",
-  description: "Considered corporate gift essentials.",
+  title: {
+    default: "Gifted Delites — Spreading Joy and Goodwill",
+    template: "%s | Gifted Delites",
+  },
+  description:
+    "Premium corporate gifts, personalised keepsakes and custom branded products created to make every occasion memorable.",
+  icons: {
+    icon: "/images/gifted-delites-logo.jpg",
+    apple: "/images/gifted-delites-logo.jpg",
+  },
 };
 
 export const viewport = {

@@ -17,37 +17,34 @@ type CategoryCard = {
 const FALLBACK_CATEGORY_CARDS: CategoryCard[] = [
   {
     name: "Corporate & Bulk",
-    image: "https://picsum.photos/seed/gifted-corporate/900/1200",
+    image: "/images/gifted-delites-about.webp",
   },
   {
     name: "Executive Gifts",
-    image: "https://picsum.photos/seed/gifted-executive/900/1200",
+    image: "/images/gifted-delites-hero.webp",
   },
   {
     name: "Luxury Gift Boxes",
-    image: "https://picsum.photos/seed/gifted-luxury/900/1200",
+    image: "/images/gifted-delites-about.webp",
   },
   {
     name: "Branded Stationery",
-    image: "https://picsum.photos/seed/gifted-stationery/900/1200",
+    image: "/images/gifted-delites-hero.webp",
   },
   {
     name: "Event Merchandise",
-    image: "https://picsum.photos/seed/gifted-events/900/1200",
+    image: "/images/gifted-delites-about.webp",
   },
   {
     name: "Custom Packaging",
-    image: "https://picsum.photos/seed/gifted-packaging/900/1200",
+    image: "/images/gifted-delites-hero.webp",
   },
 ];
 
 function createFallbackImage(category: string) {
-  const seed = category
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "");
-
-  return `https://picsum.photos/seed/gifted-${seed || "category"}/900/1200`;
+  return category.length % 2 === 0
+    ? "/images/gifted-delites-about.webp"
+    : "/images/gifted-delites-hero.webp";
 }
 
 export default function Homepage() {
@@ -167,13 +164,17 @@ export default function Homepage() {
         <div className="header-row wrap">
           <a href="/" className="logo">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/images/logo.jpg" alt="Gifted Delites" />
+            <img
+              src="/images/gifted-delites-logo.jpg"
+              alt="Gifted Delites — Spreading joy and goodwill"
+            />
           </a>
 
           <nav className="nav-links" aria-label="Main navigation">
             <a href="/">Home</a>
-            <a href="/products">Products</a>
-            <a href="#about">About</a>
+            <a href="/products">Product Catalogs</a>
+            <a href="/about">About</a>
+            <a href="/services">Our Services</a>
             <a href="#contact">Contact</a>
           </nav>
 
@@ -234,7 +235,7 @@ export default function Homepage() {
         <div className="hero-bg">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="https://picsum.photos/seed/gifted-hero-bg/1600/900"
+            src="/images/gifted-delites-hero.webp"
             alt=""
           />
 
@@ -243,18 +244,18 @@ export default function Homepage() {
 
         <div className="wrap hero-inner">
           <div className="hero-copy">
-            <p className="eyebrow">PREMIUM CORPORATE GIFTS</p>
+            <p className="eyebrow">GIFTS THAT MAKE AN IMPRESSION</p>
 
             <h1>
-              Create Custom Products
+              Thoughtful Gifts.
               <br />
-              That Feel Premium
+              Beautifully Personal.
             </h1>
 
             <p className="hero-text">
-              Discover thoughtfully designed corporate gifts and branded
-              essentials created to elevate every occasion and leave a lasting
-              impression.
+              From one-of-a-kind keepsakes to polished corporate collections,
+              we create gifts that spread joy, strengthen connections and keep
+              your brand remembered.
             </p>
 
             <div className="hero-buttons">
@@ -321,18 +322,18 @@ export default function Homepage() {
       <section className="benefits">
         <div className="wrap benefit-grid">
           <div>
-            <h3>Premium Quality</h3>
-            <p>Carefully selected products made to impress.</p>
+            <h3>Made to Delight</h3>
+            <p>Beautifully selected gifts your recipients will truly value.</p>
           </div>
 
           <div>
-            <h3>Custom Branding</h3>
-            <p>Personalised solutions for every business.</p>
+            <h3>Personal to You</h3>
+            <p>Names, messages and brand details finished with care.</p>
           </div>
 
           <div>
-            <h3>Fast Delivery</h3>
-            <p>Reliable delivery for your important occasions.</p>
+            <h3>Reliable Delivery</h3>
+            <p>Carefully packed and delivered for your important moments.</p>
           </div>
         </div>
       </section>
@@ -343,7 +344,7 @@ export default function Homepage() {
           <div className="home-categories-header">
             <div className="home-categories-heading">
               <h2>Explore Categories</h2>
-              <p>Curated categories for every personalization need.</p>
+              <p>Find the right gift for clients, teams and special moments.</p>
             </div>
 
             <div className="home-categories-controls">
@@ -420,24 +421,23 @@ export default function Homepage() {
           <div className="about-image">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="https://picsum.photos/seed/gifted-about/900/900"
+              src="/images/gifted-delites-about.webp"
               alt="Premium corporate gifts arranged by Gifted Delites"
             />
           </div>
 
           <div className="about-copy">
-            <p className="eyebrow">OUR APPROACH</p>
+            <p className="eyebrow">THE GIFTED DELITES TOUCH</p>
 
-            <h2>Designed For Meaningful Connections</h2>
+            <h2>Every Detail Chosen to Mean More</h2>
 
             <p>
-              Gifted Delites creates premium products that help brands
-              celebrate, connect and create memorable experiences —
-              spreading joy and goodwill with every gift. Every item is
-              chosen for how it holds up in daily use, not just how it
-              photographs, because a gift that lasts says more than one that
-              doesn&apos;t.
+              We source and deliver curated corporate gifts, promotional
+              merchandise and premium executive gift solutions—customized for
+              your brand, budget, recipients and occasion.
             </p>
+
+            <a href="/about" className="text-link">Discover Our Approach</a>
           </div>
         </div>
       </section>
@@ -463,19 +463,23 @@ export default function Homepage() {
           <div className="footer-col">
             <div className="logo">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/logo.jpg" alt="Gifted Delites" />
+              <img
+                src="/images/gifted-delites-logo.jpg"
+                alt="Gifted Delites"
+              />
             </div>
 
             <p>
-              Spreading joy and goodwill — considered gifting essentials,
-              made to impress and built to last.
+              Spreading joy and goodwill through memorable personal and
+              corporate gifts, made with care.
             </p>
           </div>
 
           <div className="footer-col">
             <h4>Shop</h4>
-            <a href="/products">All Products</a>
-            <a href="/#about">About</a>
+            <a href="/products">Product Catalogs</a>
+            <a href="/about">About</a>
+            <a href="/services">Our Services</a>
             <a href="/#contact">Custom Orders</a>
           </div>
 
