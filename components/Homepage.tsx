@@ -17,27 +17,27 @@ type CategoryCard = {
 const FALLBACK_CATEGORY_CARDS: CategoryCard[] = [
   {
     name: "Corporate & Bulk",
-    image: "https://picsum.photos/seed/noor-corporate/900/1200",
+    image: "https://picsum.photos/seed/gifted-corporate/900/1200",
   },
   {
     name: "Executive Gifts",
-    image: "https://picsum.photos/seed/noor-executive/900/1200",
+    image: "https://picsum.photos/seed/gifted-executive/900/1200",
   },
   {
     name: "Luxury Gift Boxes",
-    image: "https://picsum.photos/seed/noor-luxury/900/1200",
+    image: "https://picsum.photos/seed/gifted-luxury/900/1200",
   },
   {
     name: "Branded Stationery",
-    image: "https://picsum.photos/seed/noor-stationery/900/1200",
+    image: "https://picsum.photos/seed/gifted-stationery/900/1200",
   },
   {
     name: "Event Merchandise",
-    image: "https://picsum.photos/seed/noor-events/900/1200",
+    image: "https://picsum.photos/seed/gifted-events/900/1200",
   },
   {
     name: "Custom Packaging",
-    image: "https://picsum.photos/seed/noor-packaging/900/1200",
+    image: "https://picsum.photos/seed/gifted-packaging/900/1200",
   },
 ];
 
@@ -47,7 +47,7 @@ function createFallbackImage(category: string) {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
 
-  return `https://picsum.photos/seed/noor-${seed || "category"}/900/1200`;
+  return `https://picsum.photos/seed/gifted-${seed || "category"}/900/1200`;
 }
 
 export default function Homepage() {
@@ -166,7 +166,8 @@ export default function Homepage() {
       <header>
         <div className="header-row wrap">
           <a href="/" className="logo">
-            NOOR
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo.jpg" alt="Gifted Delites" />
           </a>
 
           <nav className="nav-links" aria-label="Main navigation">
@@ -233,7 +234,7 @@ export default function Homepage() {
         <div className="hero-bg">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="https://picsum.photos/seed/noor-hero-bg/1600/900"
+            src="https://picsum.photos/seed/gifted-hero-bg/1600/900"
             alt=""
           />
 
@@ -419,8 +420,8 @@ export default function Homepage() {
           <div className="about-image">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="https://picsum.photos/seed/noor-about/900/900"
-              alt="Premium corporate gifts arranged by NOOR"
+              src="https://picsum.photos/seed/gifted-about/900/900"
+              alt="Premium corporate gifts arranged by Gifted Delites"
             />
           </div>
 
@@ -430,10 +431,12 @@ export default function Homepage() {
             <h2>Designed For Meaningful Connections</h2>
 
             <p>
-              NOOR creates premium products that help brands celebrate,
-              connect and create memorable experiences. Every item is chosen
-              for how it holds up in daily use, not just how it photographs —
-              because a gift that lasts says more than one that doesn&apos;t.
+              Gifted Delites creates premium products that help brands
+              celebrate, connect and create memorable experiences —
+              spreading joy and goodwill with every gift. Every item is
+              chosen for how it holds up in daily use, not just how it
+              photographs, because a gift that lasts says more than one that
+              doesn&apos;t.
             </p>
           </div>
         </div>
@@ -443,7 +446,7 @@ export default function Homepage() {
       <section id="contact" className="contact wrap">
         <h2>Need Something Unique?</h2>
 
-        <p>Start your custom project with NOOR today.</p>
+        <p>Start your custom project with Gifted Delites today.</p>
 
         <a
           href="https://wa.me/2349126105778"
@@ -458,11 +461,14 @@ export default function Homepage() {
       <footer>
         <div className="wrap footer-grid">
           <div className="footer-col">
-            <div className="logo">NOOR</div>
+            <div className="logo">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/logo.jpg" alt="Gifted Delites" />
+            </div>
 
             <p>
-              Considered corporate gifting essentials, made to impress and
-              built to last.
+              Spreading joy and goodwill — considered gifting essentials,
+              made to impress and built to last.
             </p>
           </div>
 
@@ -495,7 +501,7 @@ export default function Homepage() {
         </div>
 
         <div className="wrap footer-bottom">
-          © {new Date().getFullYear()} NOOR. All rights reserved.
+          © {new Date().getFullYear()} Gifted Delites. All rights reserved.
         </div>
       </footer>
     </main>
