@@ -41,13 +41,6 @@ export async function GET() {
         item.Category ??
         "Uncategorized";
 
-      const catalogs = Array.isArray(item.catalogs)
-        ? item.catalogs.filter(
-            (catalog: unknown): catalog is string =>
-              typeof catalog === "string" && catalog.trim().length > 0
-          )
-        : [];
-
      const images = [
   ...(Array.isArray(item.images) ? item.images : []),
 
@@ -78,10 +71,10 @@ export async function GET() {
         ).trim(),
         price: Number(priceValue) || 0,
         category: String(category || "Uncategorized").trim(),
-        catalogs:
-          catalogs.length > 0
-            ? catalogs.map((catalog: string) => catalog.trim())
-            : [String(category || "Uncategorized").trim()],
+        // The primary category is the storefront's source of truth. Keeping
+        // this derived prevents stale legacy `catalogs` values from placing a
+        // product in unrelated filters.
+        catalogs: [String(category || "Uncategorized").trim()],
         images,
         features: Array.isArray(item.features)
           ? item.features

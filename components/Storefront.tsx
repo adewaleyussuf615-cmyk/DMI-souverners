@@ -196,17 +196,11 @@ export default function Storefront() {
     if (category !== "all") {
       const selectedCatalog = category.toLowerCase();
 
-      list = list.filter((product) => {
-        const catalogs = Array.isArray(product.catalogs)
-          ? product.catalogs
-          : [];
-
-        return (
-          catalogs.some(
-            (catalog) => catalog.toLowerCase() === selectedCatalog
-          ) || product.category.toLowerCase() === selectedCatalog
-        );
-      });
+      list = list.filter(
+        (product) =>
+          typeof product.category === "string" &&
+          product.category.trim().toLowerCase() === selectedCatalog
+      );
     }
 
     if (search.trim()) {
@@ -230,14 +224,9 @@ export default function Storefront() {
             ? product.description.toLowerCase()
             : "";
 
-        const productCatalogs = Array.isArray(product.catalogs)
-          ? product.catalogs.join(" ").toLowerCase()
-          : "";
-
         return (
           productName.includes(query) ||
           productCategory.includes(query) ||
-          productCatalogs.includes(query) ||
           productDescription.includes(query)
         );
       });

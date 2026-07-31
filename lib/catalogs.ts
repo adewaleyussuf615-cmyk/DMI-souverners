@@ -6,15 +6,4 @@ export const PRODUCT_CATALOGS = [
   "Bags & Pouches",
   "Beauty Products",
   "Gadgets & Electronics",
-  "Lifestyle & Household Items",
-  "Stationery",
-  "Travel Accessories",
-  "Affordable Gifts",
-  "Premium & Luxury Gift Collections",
-  "Door Gifts",
-  "Conference & Event Gifts",
-  "Client Appreciation Gifts",
-  "Employee Recognition Gifts",
-  "Customized Corporate Gift Sets",
 ] as const;
-
