@@ -18,7 +18,7 @@ export async function GET() {
 
   const products = (data ?? [])
     .map((item) => {
-      // Support the different column-name formats in Supabase.
+      // Support different product name formats
       const name =
         item.product_name ??
         item.Product_name ??
@@ -41,52 +41,85 @@ export async function GET() {
         item.Category ??
         "Uncategorized";
 
-     const images = [
-  ...(Array.isArray(item.images) ? item.images : []),
 
-  item["image_url 1"],
-  item["image_url 2"],
-  item["image_url 3"],
+      const images = [
+        ...(Array.isArray(item.images) ? item.images : []),
 
-  item["Image_url 1"],
-  item["Image_url 2"],
-  item["Image_url 3"],
+        item["image_url 1"],
+        item["image_url 2"],
+        item["image_url 3"],
 
-  item.image_url,
-  item.Image_url,
-].filter(
-  (image): image is string =>
-    typeof image === "string" && image.trim().length > 0
-);
+        item["Image_url 1"],
+        item["Image_url 2"],
+        item["Image_url 3"],
+
+        item.image_url,
+        item.Image_url,
+      ].filter(
+        (image): image is string =>
+          typeof image === "string" &&
+          image.trim().length > 0
+      );
+
+
+      // Preserve Supabase catalog system
+      const catalogs = [
+        String(category || "Uncategorized").trim(),
+
+        ...(Array.isArray(item.catalogs)
+          ? item.catalogs
+          : []),
+      ]
+        .map((catalog) => String(catalog).trim())
+        .filter(
+          (catalog, index, array) =>
+            catalog.length > 0 &&
+            array.indexOf(catalog) === index
+        );
+
 
       return {
         id: item.id,
+
         name: String(name).trim(),
+
         description: String(description || "").trim(),
+
         long_description: String(
           item.long_description ??
           item.Long_description ??
           description ??
           ""
         ).trim(),
+
         price: Number(priceValue) || 0,
+
         category: String(category || "Uncategorized").trim(),
-        // The primary category is the storefront's source of truth. Keeping
-        // this derived prevents stale legacy `catalogs` values from placing a
-        // product in unrelated filters.
-        catalogs: [String(category || "Uncategorized").trim()],
+
+        catalogs,
+
         images,
+
         features: Array.isArray(item.features)
           ? item.features
           : [],
+
         badge: item.badge ?? null,
+
         rating: item.rating ?? null,
+
         moq: item.moq ?? null,
+
         weight: item.weight ?? null,
       };
     })
-    // Do not send empty or malformed product rows to the frontend.
-    .filter((product) => product.name.length > 0);
+
+    // Remove empty products
+    .filter(
+      (product) =>
+        product.name.length > 0
+    );
+
 
   return NextResponse.json({ products });
 }
