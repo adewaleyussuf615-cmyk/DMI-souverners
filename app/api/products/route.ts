@@ -63,13 +63,15 @@ export async function GET() {
 
 
       // Preserve Supabase catalog system
-      const catalogs = [
-        String(category || "Uncategorized").trim(),
+    const catalogs = [
+  String(category || "Uncategorized").trim(),
 
-        ...(Array.isArray(item.catalogs)
-          ? item.catalogs
-          : []),
-      ]
+  ...(Array.isArray(item.catalogs)
+    ? item.catalogs
+    : typeof item.catalogs === "string"
+      ? item.catalogs.split(",")
+      : []),
+]
         .map((catalog) => String(catalog).trim())
         .filter(
           (catalog, index, array) =>
