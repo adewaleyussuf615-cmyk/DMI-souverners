@@ -8,6 +8,13 @@ export async function GET() {
     .from("products")
     .select("*")
     .order("created_at", { ascending: false });
+  console.log("TOTAL FROM SUPABASE:", data?.length);
+console.log(
+  "AWARDS:",
+  data?.filter(
+    (item) => item.category === "Awards & Recognition"
+  )
+);
 
   if (error) {
     return NextResponse.json(
