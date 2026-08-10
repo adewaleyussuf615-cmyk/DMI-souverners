@@ -137,7 +137,9 @@ export default function Storefront() {
       setLoadError("");
 
       try {
-        const response = await fetch("/api/products");
+         const response = await fetch("/api/products", {
+  cache: "no-store",
+});
 
         if (!response.ok) {
           throw new Error("Unable to load products.");
