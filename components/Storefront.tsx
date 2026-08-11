@@ -2,7 +2,10 @@
 
 import { useEffect, useMemo, useState } from "react";
 import type { Product } from "@/lib/types";
-import { PRODUCT_CATALOGS } from "@/lib/catalogs";
+import {
+  normalizeCatalog,
+  PRODUCT_CATALOGS,
+} from "@/lib/catalogs";
 
 const WHATSAPP_NUMBER =
   process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "2349126105778";
@@ -27,22 +30,11 @@ const COLLECTION_TABS = [
 
 type CollectionTab = (typeof COLLECTION_TABS)[number]["id"];
 
-function money(value: number) {
-  return `₦${value.toLocaleString("en-NG")}`;
-}
-
 function normalizeBadge(product: Product) {
   return String(product.badge || "")
     .trim()
     .toLowerCase()
     .replace(/[\s_-]+/g, "");
-}
-
-function normalizeCatalog(value: unknown) {
-  return String(value ?? "")
-    .replace(/\s+/g, " ")
-    .trim()
-    .toLowerCase();
 }
 
 function isBestSeller(product: Product) {
@@ -128,7 +120,7 @@ export default function Storefront() {
       urlParameters.get("category");
 
     if (selectedCategory) {
-      setCategory(selectedCategory);
+      setCategory(normalizeCatalog(selectedCategory));
       setCollectionTab("all");
     }
   }, []);
@@ -144,9 +136,9 @@ export default function Storefront() {
       setLoadError("");
 
       try {
-        const response = await fetch("/api/products", {
-          cache: "no-store",
-        });
+         const response = await fetch("/api/products", {
+  cache: "no-store",
+});
 
         if (!response.ok) {
           throw new Error("Unable to load products.");
@@ -203,19 +195,21 @@ export default function Storefront() {
     }
 
     if (category !== "all") {
-      const selectedCatalog = normalizeCatalog(category);
+      const selectedCatalog =
+        normalizeCatalog(category).toLowerCase();
 
       list = list.filter((product) => {
-        const productCatalogs = [
+        const assignedCatalogs = [
           product.category,
           ...(Array.isArray(product.catalogs)
             ? product.catalogs
             : []),
         ];
 
-        return productCatalogs.some(
-          (productCatalog) =>
-            normalizeCatalog(productCatalog) === selectedCatalog
+        return assignedCatalogs.some(
+          (catalog) =>
+            normalizeCatalog(catalog).toLowerCase() ===
+            selectedCatalog
         );
       });
     }
@@ -267,22 +261,6 @@ export default function Storefront() {
   const cartCount = cartEntries.reduce(
     (total, entry) =>
       total + entry.quantity,
-    0
-  );
-
-  const cartSubtotal = cartEntries.reduce(
-    (total, entry) => {
-      const product = products.find(
-        (item) => item.id === entry.id
-      );
-
-      return (
-        total +
-        (product
-          ? product.price * entry.quantity
-          : 0)
-      );
-    },
     0
   );
 
@@ -388,11 +366,9 @@ export default function Storefront() {
           return null;
         }
 
-        return `• ${product.name} x${
-          entry.quantity
-        } — ${money(
-          product.price * entry.quantity
-        )}`;
+        return `• Product ID: ${product.id} | ${
+          product.name
+        } | Quantity: ${entry.quantity}`;
       })
       .filter(
         (line): line is string =>
@@ -400,7 +376,7 @@ export default function Storefront() {
       );
 
     return [
-      "New order from Gifted Delites website:",
+      "New product enquiry from Gifted Delites website:",
       `Name: ${
         custName || "(not provided)"
       }`,
@@ -414,7 +390,7 @@ export default function Storefront() {
       "Items:",
       ...orderLines,
       "",
-      `Total: ${money(cartSubtotal)}`,
+      "Please send me the current price and availability for these items.",
     ].join("\n");
   }
 
@@ -806,7 +782,7 @@ export default function Storefront() {
 
                   <div className="card-foot">
                     <span className="price">
-                      {money(product.price)}
+                      Contact us for price
                     </span>
                   </div>
 
@@ -948,9 +924,7 @@ export default function Storefront() {
                 </h2>
 
                 <div className="detail-price">
-                  {money(
-                    detailProduct.price
-                  )}
+                  Contact us on WhatsApp for price
                 </div>
 
                 <p className="detail-desc">
@@ -1127,10 +1101,7 @@ export default function Storefront() {
                           </span>
 
                           <span>
-                            {money(
-                              product.price *
-                                entry.quantity
-                            )}
+                            ID: {product.id}
                           </span>
                         </div>
 
@@ -1189,10 +1160,7 @@ export default function Storefront() {
             {cartEntries.length > 0 && (
               <div className="drawer-foot">
                 <div className="subtotal-row">
-                  <span>Subtotal</span>
-                  <span>
-                    {money(cartSubtotal)}
-                  </span>
+                  <span>Prices available on request</span>
                 </div>
 
                 <button
@@ -1202,7 +1170,7 @@ export default function Storefront() {
                     setCheckoutOpen(true)
                   }
                 >
-                  Checkout
+                  Enquire on WhatsApp
                 </button>
               </div>
             )}
@@ -1257,7 +1225,7 @@ export default function Storefront() {
                 fontSize: 22,
               }}
             >
-              Confirm your order
+              Send product enquiry
             </h3>
 
             <p
@@ -1267,9 +1235,8 @@ export default function Storefront() {
                 marginBottom: 20,
               }}
             >
-              We&apos;ll pre-fill your
-              order as a message. Just send
-              it once WhatsApp opens.
+              We&apos;ll pre-fill your product IDs and quantities. Send the
+              message in WhatsApp to receive current prices and availability.
             </p>
 
             <div className="field">
