@@ -1,7 +1,7 @@
 export type Product = {
   id: number;
   name: string;
-  price: number;
+  price?: number;
   category: string;
   catalogs: string[];
   rating: number | null;
@@ -14,4 +14,3 @@ export type Product = {
   badge: string | null;
   created_at?: string;
 };
-
