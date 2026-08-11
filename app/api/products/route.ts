@@ -1,21 +1,8 @@
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabaseClient";
+import { normalizeCatalog } from "@/lib/catalogs";
 
 export const dynamic = "force-dynamic";
-
-const CATALOG_ALIASES: Record<string, string> = {
-  "client appreciation gift": "Client Appreciation Gifts",
-  "employee recognition": "Employee Recognition Gifts",
-  "employee recognition gift": "Employee Recognition Gifts",
-};
-
-function cleanCatalogName(value: unknown) {
-  const cleaned = String(value ?? "")
-    .replace(/\s+/g, " ")
-    .trim();
-
-  return CATALOG_ALIASES[cleaned.toLowerCase()] ?? cleaned;
-}
 
 export async function GET() {
   const { data, error } = await supabase
@@ -45,15 +32,11 @@ export async function GET() {
         item.Description ??
         "";
 
-      const priceValue =
-        item.price ??
-        item.Price ??
-        0;
-
       const category =
-        item.category ??
-        item.Category ??
-        "Uncategorized";
+        normalizeCatalog(
+          item.category ??
+          item.Category
+        ) || "Uncategorized";
 
 
       const images = [
@@ -76,17 +59,16 @@ export async function GET() {
       );
 
 
-      // Preserve and normalize all Supabase catalog assignments.
+      // Preserve and canonicalize every Supabase catalog assignment.
       const catalogs = [
-        cleanCatalogName(category || "Uncategorized"),
-
+        category,
         ...(Array.isArray(item.catalogs)
           ? item.catalogs
           : typeof item.catalogs === "string"
             ? item.catalogs.split(",")
             : []),
       ]
-        .map(cleanCatalogName)
+        .map(normalizeCatalog)
         .filter(
           (catalog, index, array) =>
             catalog.length > 0 &&
@@ -108,9 +90,7 @@ export async function GET() {
           ""
         ).trim(),
 
-        price: Number(priceValue) || 0,
-
-        category: cleanCatalogName(category || "Uncategorized"),
+        category,
 
         catalogs,
 
