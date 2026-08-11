@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabaseClient";
+import { normalizeCatalog } from "@/lib/catalogs";
 
 export const dynamic = "force-dynamic";
 
@@ -8,13 +9,6 @@ export async function GET() {
     .from("products")
     .select("*")
     .order("created_at", { ascending: false });
-  console.log("TOTAL FROM SUPABASE:", data?.length);
-console.log(
-  "AWARDS:",
-  data?.filter(
-    (item) => item.category === "Awards & Recognition"
-  )
-);
 
   if (error) {
     return NextResponse.json(
@@ -25,7 +19,6 @@ console.log(
 
   const products = (data ?? [])
     .map((item) => {
-      // Support different product name formats
       const name =
         item.product_name ??
         item.Product_name ??
@@ -44,10 +37,10 @@ console.log(
         0;
 
       const category =
-        item.category ??
-        item.Category ??
-        "Uncategorized";
-
+        normalizeCatalog(
+          item.category ??
+          item.Category
+        ) || "Uncategorized";
 
       const images = [
         ...(Array.isArray(item.images) ? item.images : []),
@@ -68,24 +61,20 @@ console.log(
           image.trim().length > 0
       );
 
-
-      // Preserve Supabase catalog system
-    const catalogs = [
-  String(category || "Uncategorized").trim(),
-
-  ...(Array.isArray(item.catalogs)
-    ? item.catalogs
-    : typeof item.catalogs === "string"
-      ? item.catalogs.split(",")
-      : []),
-]
-        .map((catalog) => String(catalog).trim())
+      const catalogs = [
+        category,
+        ...(Array.isArray(item.catalogs)
+          ? item.catalogs
+          : typeof item.catalogs === "string"
+            ? item.catalogs.split(",")
+            : []),
+      ]
+        .map(normalizeCatalog)
         .filter(
           (catalog, index, array) =>
             catalog.length > 0 &&
             array.indexOf(catalog) === index
         );
-
 
       return {
         id: item.id,
@@ -103,7 +92,7 @@ console.log(
 
         price: Number(priceValue) || 0,
 
-        category: String(category || "Uncategorized").trim(),
+        category,
 
         catalogs,
 
@@ -122,13 +111,7 @@ console.log(
         weight: item.weight ?? null,
       };
     })
-
-    // Remove empty products
-    .filter(
-      (product) =>
-        product.name.length > 0
-    );
-
+    .filter((product) => product.name.length > 0);
 
   return NextResponse.json({ products });
 }

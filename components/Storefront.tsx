@@ -2,7 +2,10 @@
 
 import { useEffect, useMemo, useState } from "react";
 import type { Product } from "@/lib/types";
-import { PRODUCT_CATALOGS } from "@/lib/catalogs";
+import {
+  normalizeCatalog,
+  PRODUCT_CATALOGS,
+} from "@/lib/catalogs";
 
 const WHATSAPP_NUMBER =
   process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "2349126105778";
@@ -195,15 +198,25 @@ export default function Storefront() {
       list = list.filter(isFeaturedProduct);
     }
 
-    if (category !== "all") {
-      const selectedCatalog = category.toLowerCase();
+   if (category !== "all") {
+  const selectedCatalog =
+    normalizeCatalog(category).toLowerCase();
 
-      list = list.filter(
-        (product) =>
-          typeof product.category === "string" &&
-          product.category.trim().toLowerCase() === selectedCatalog
-      );
-    }
+  list = list.filter((product) => {
+    const assignedCatalogs = [
+      product.category,
+      ...(Array.isArray(product.catalogs)
+        ? product.catalogs
+        : []),
+    ];
+
+    return assignedCatalogs.some(
+      (catalog) =>
+        normalizeCatalog(catalog).toLowerCase() ===
+        selectedCatalog
+    );
+  });
+}
 
     if (search.trim()) {
       const query = search
@@ -291,7 +304,7 @@ export default function Storefront() {
   function selectCategory(
     selectedCategory: string
   ) {
-    setCategory(selectedCategory);
+    setCategory(normalizeCatalog(selectedCategory));
     setCollectionTab("all");
     setCategoryOpen(false);
 
