@@ -9,7 +9,6 @@ export const PRODUCT_CATALOGS = [
   "Conference & Event Gifts",
   "Customized Corporate Gift Sets",
   "Door Gifts",
-  "Employee Recognition Gifts",
   "Executive & Luxury Gifts",
   "Gadgets & Electronics",
   "Lifestyle & Household Items",
