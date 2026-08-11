@@ -2,10 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import type { Product } from "@/lib/types";
-import {
-  normalizeCatalog,
-  PRODUCT_CATALOGS,
-} from "@/lib/catalogs";
+import { PRODUCT_CATALOGS } from "@/lib/catalogs";
 
 const WHATSAPP_NUMBER =
   process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "2349126105778";
@@ -39,6 +36,13 @@ function normalizeBadge(product: Product) {
     .trim()
     .toLowerCase()
     .replace(/[\s_-]+/g, "");
+}
+
+function normalizeCatalog(value: unknown) {
+  return String(value ?? "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
 }
 
 function isBestSeller(product: Product) {
@@ -140,9 +144,9 @@ export default function Storefront() {
       setLoadError("");
 
       try {
-         const response = await fetch("/api/products", {
-  cache: "no-store",
-});
+        const response = await fetch("/api/products", {
+          cache: "no-store",
+        });
 
         if (!response.ok) {
           throw new Error("Unable to load products.");
@@ -198,25 +202,23 @@ export default function Storefront() {
       list = list.filter(isFeaturedProduct);
     }
 
-   if (category !== "all") {
-  const selectedCatalog =
-    normalizeCatalog(category).toLowerCase();
+    if (category !== "all") {
+      const selectedCatalog = normalizeCatalog(category);
 
-  list = list.filter((product) => {
-    const assignedCatalogs = [
-      product.category,
-      ...(Array.isArray(product.catalogs)
-        ? product.catalogs
-        : []),
-    ];
+      list = list.filter((product) => {
+        const productCatalogs = [
+          product.category,
+          ...(Array.isArray(product.catalogs)
+            ? product.catalogs
+            : []),
+        ];
 
-    return assignedCatalogs.some(
-      (catalog) =>
-        normalizeCatalog(catalog).toLowerCase() ===
-        selectedCatalog
-    );
-  });
-}
+        return productCatalogs.some(
+          (productCatalog) =>
+            normalizeCatalog(productCatalog) === selectedCatalog
+        );
+      });
+    }
 
     if (search.trim()) {
       const query = search
@@ -304,7 +306,7 @@ export default function Storefront() {
   function selectCategory(
     selectedCategory: string
   ) {
-    setCategory(normalizeCatalog(selectedCategory));
+    setCategory(selectedCategory);
     setCollectionTab("all");
     setCategoryOpen(false);
 

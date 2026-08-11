@@ -14,3 +14,4 @@ export type Product = {
   badge: string | null;
   created_at?: string;
 };
+

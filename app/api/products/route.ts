@@ -1,8 +1,21 @@
 import { NextResponse } from "next/server";
 import { supabase } from "@/lib/supabaseClient";
-import { normalizeCatalog } from "@/lib/catalogs";
 
 export const dynamic = "force-dynamic";
+
+const CATALOG_ALIASES: Record<string, string> = {
+  "client appreciation gift": "Client Appreciation Gifts",
+  "employee recognition": "Employee Recognition Gifts",
+  "employee recognition gift": "Employee Recognition Gifts",
+};
+
+function cleanCatalogName(value: unknown) {
+  const cleaned = String(value ?? "")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  return CATALOG_ALIASES[cleaned.toLowerCase()] ?? cleaned;
+}
 
 export async function GET() {
   const { data, error } = await supabase
@@ -19,6 +32,7 @@ export async function GET() {
 
   const products = (data ?? [])
     .map((item) => {
+      // Support different product name formats
       const name =
         item.product_name ??
         item.Product_name ??
@@ -37,10 +51,10 @@ export async function GET() {
         0;
 
       const category =
-        normalizeCatalog(
-          item.category ??
-          item.Category
-        ) || "Uncategorized";
+        item.category ??
+        item.Category ??
+        "Uncategorized";
+
 
       const images = [
         ...(Array.isArray(item.images) ? item.images : []),
@@ -61,20 +75,24 @@ export async function GET() {
           image.trim().length > 0
       );
 
+
+      // Preserve and normalize all Supabase catalog assignments.
       const catalogs = [
-        category,
+        cleanCatalogName(category || "Uncategorized"),
+
         ...(Array.isArray(item.catalogs)
           ? item.catalogs
           : typeof item.catalogs === "string"
             ? item.catalogs.split(",")
             : []),
       ]
-        .map(normalizeCatalog)
+        .map(cleanCatalogName)
         .filter(
           (catalog, index, array) =>
             catalog.length > 0 &&
             array.indexOf(catalog) === index
         );
+
 
       return {
         id: item.id,
@@ -92,7 +110,7 @@ export async function GET() {
 
         price: Number(priceValue) || 0,
 
-        category,
+        category: cleanCatalogName(category || "Uncategorized"),
 
         catalogs,
 
@@ -111,7 +129,13 @@ export async function GET() {
         weight: item.weight ?? null,
       };
     })
-    .filter((product) => product.name.length > 0);
+
+    // Remove empty products
+    .filter(
+      (product) =>
+        product.name.length > 0
+    );
+
 
   return NextResponse.json({ products });
 }
