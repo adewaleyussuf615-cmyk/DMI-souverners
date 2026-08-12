@@ -425,7 +425,7 @@ export default function Homepage() {
         <p>Start your custom project with Gifted Delites today.</p>
 
         <a
-          href="https://wa.me/2349126105778"
+          href="https://wa.me/2349041000002"
           className="primary-btn"
           target="_blank"
           rel="noreferrer"
@@ -463,19 +463,11 @@ export default function Homepage() {
             <h4>Order Via</h4>
 
             <a
-              href="https://wa.me/2349126105778"
+              href="https://wa.me/2349041000002"
               target="_blank"
               rel="noreferrer"
             >
-              WhatsApp
-            </a>
-
-            <a
-              href="https://instagram.com/manestyle.lagos"
-              target="_blank"
-              rel="noreferrer"
-            >
-              Instagram
+              WhatsApp (0904 100 0002)
             </a>
           </div>
         </div>
