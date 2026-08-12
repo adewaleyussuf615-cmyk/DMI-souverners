@@ -10,8 +10,8 @@ import {
 const WHATSAPP_NUMBER =
   process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "2349126105778";
 
-const INSTAGRAM_HANDLE =
-  process.env.NEXT_PUBLIC_INSTAGRAM_HANDLE || "manestyle.lagos";
+const SECONDARY_WHATSAPP_NUMBER =
+  process.env.NEXT_PUBLIC_SECONDARY_WHATSAPP_NUMBER || "2349041000002";
 
 const COLLECTION_TABS = [
   {
@@ -394,34 +394,16 @@ export default function Storefront() {
     ].join("\n");
   }
 
-  function sendOrder(
-    channel: "whatsapp" | "instagram"
-  ) {
+  function sendOrder(whatsappNumber: string) {
     const message = buildOrderMessage();
 
-    if (channel === "whatsapp") {
-      window.open(
-        `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
-          message
-        )}`,
-        "_blank",
-        "noopener,noreferrer"
-      );
-    } else {
-      navigator.clipboard
-        ?.writeText(message)
-        .catch(() => undefined);
-
-      window.open(
-        `https://instagram.com/${INSTAGRAM_HANDLE}`,
-        "_blank",
-        "noopener,noreferrer"
-      );
-
-      alert(
-        "Order details copied. Paste them into your Instagram DM."
-      );
-    }
+    window.open(
+      `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
+        message
+      )}`,
+      "_blank",
+      "noopener,noreferrer"
+    );
 
     setCheckoutOpen(false);
   }
@@ -1293,10 +1275,10 @@ export default function Storefront() {
               type="button"
               className="btn btn-gold btn-full"
               onClick={() =>
-                sendOrder("whatsapp")
+                sendOrder(WHATSAPP_NUMBER)
               }
             >
-              Send Order via WhatsApp
+              Send via WhatsApp (0912 610 5778)
             </button>
 
             <button
@@ -1304,10 +1286,10 @@ export default function Storefront() {
               className="btn btn-outline btn-full"
               style={{ marginTop: 10 }}
               onClick={() =>
-                sendOrder("instagram")
+                sendOrder(SECONDARY_WHATSAPP_NUMBER)
               }
             >
-              Confirm via Instagram DM
+              Send via WhatsApp (0904 100 0002)
             </button>
           </div>
         </div>

@@ -139,7 +139,14 @@ export default function AboutPage() {
               target="_blank"
               rel="noreferrer"
             >
-              WhatsApp
+              WhatsApp (0912 610 5778)
+            </a>
+            <a
+              href="https://wa.me/2349041000002"
+              target="_blank"
+              rel="noreferrer"
+            >
+              WhatsApp (0904 100 0002)
             </a>
             <a href="/#contact">Contact</a>
           </div>
