@@ -425,7 +425,7 @@ export default function Homepage() {
         <p>Start your custom project with Gifted Delites today.</p>
 
         <a
-          href="https://wa.me/2349126105778"
+          href="https://wa.me/2349041000002"
           className="primary-btn"
           target="_blank"
           rel="noreferrer"
@@ -461,14 +461,6 @@ export default function Homepage() {
 
           <div className="footer-col">
             <h4>Order Via</h4>
-
-            <a
-              href="https://wa.me/2349126105778"
-              target="_blank"
-              rel="noreferrer"
-            >
-              WhatsApp (0912 610 5778)
-            </a>
 
             <a
               href="https://wa.me/2349041000002"

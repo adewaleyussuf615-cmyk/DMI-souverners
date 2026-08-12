@@ -39,8 +39,7 @@ This guide assumes no prior experience with Supabase or Vercel. It takes about 2
    | `SUPABASE_SERVICE_ROLE_KEY` | service_role key from Supabase step 1.6 |
    | `ADMIN_PASSWORD` | a password you choose for staff to log into `/admin` |
    | `SESSION_SECRET` | any long random string — generate one at https://generate-secret.vercel.app/32 |
-   | `NEXT_PUBLIC_WHATSAPP_NUMBER` | your WhatsApp number, digits only, international format (e.g. `2348012345678`) |
-   | `NEXT_PUBLIC_SECONDARY_WHATSAPP_NUMBER` | your second WhatsApp number, digits only, international format (defaults to `2349041000002`) |
+   | `NEXT_PUBLIC_WHATSAPP_NUMBER` | your WhatsApp number, digits only, international format (defaults to `2349041000002`) |
 
 4. Click **Deploy**. After a couple of minutes you will receive your live store URL.
 

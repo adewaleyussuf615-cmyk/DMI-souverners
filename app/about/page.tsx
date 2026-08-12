@@ -135,13 +135,6 @@ export default function AboutPage() {
           <div className="footer-col">
             <h4>Start an Enquiry</h4>
             <a
-              href="https://wa.me/2349126105778"
-              target="_blank"
-              rel="noreferrer"
-            >
-              WhatsApp (0912 610 5778)
-            </a>
-            <a
               href="https://wa.me/2349041000002"
               target="_blank"
               rel="noreferrer"

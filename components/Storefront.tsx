@@ -8,10 +8,7 @@ import {
 } from "@/lib/catalogs";
 
 const WHATSAPP_NUMBER =
-  process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "2349126105778";
-
-const SECONDARY_WHATSAPP_NUMBER =
-  process.env.NEXT_PUBLIC_SECONDARY_WHATSAPP_NUMBER || "2349041000002";
+  process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "2349041000002";
 
 const COLLECTION_TABS = [
   {
@@ -1276,17 +1273,6 @@ export default function Storefront() {
               className="btn btn-gold btn-full"
               onClick={() =>
                 sendOrder(WHATSAPP_NUMBER)
-              }
-            >
-              Send via WhatsApp (0912 610 5778)
-            </button>
-
-            <button
-              type="button"
-              className="btn btn-outline btn-full"
-              style={{ marginTop: 10 }}
-              onClick={() =>
-                sendOrder(SECONDARY_WHATSAPP_NUMBER)
               }
             >
               Send via WhatsApp (0904 100 0002)

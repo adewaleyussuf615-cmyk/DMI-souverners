@@ -31,7 +31,7 @@ export default function ServicesPage() {
             <a href="/services" aria-current="page">Our Services</a>
             <a href="/#contact">Contact</a>
           </nav>
-          <a href="https://wa.me/2349126105778" className="header-cta" target="_blank" rel="noreferrer">Get a Quote</a>
+          <a href="https://wa.me/2349041000002" className="header-cta" target="_blank" rel="noreferrer">Get a Quote</a>
         </div>
       </header>
 
@@ -73,11 +73,11 @@ export default function ServicesPage() {
         <p className="eyebrow">LET US HANDLE THE DETAILS</p>
         <h2>Start Your Corporate Gifting Project</h2>
         <p>Tell us what you need and we will recommend the right products and process for your goals.</p>
-        <div className="hero-buttons"><a href="https://wa.me/2349126105778" className="primary-btn" target="_blank" rel="noreferrer">Request a Quote</a><a href="/products" className="secondary-btn">Browse Catalogs</a></div>
+        <div className="hero-buttons"><a href="https://wa.me/2349041000002" className="primary-btn" target="_blank" rel="noreferrer">Request a Quote</a><a href="/products" className="secondary-btn">Browse Catalogs</a></div>
         <p className="about-signoff">Premium Corporate Gifts. Expertly Sourced. Beautifully Branded. Professionally Delivered.</p>
       </div></section>
 
-      <footer><div className="wrap footer-grid"><div className="footer-col"><div className="logo">{/* eslint-disable-next-line @next/next/no-img-element */}<img src="/images/gifted-delites-logo.jpg" alt="Gifted Delites" /></div><p>Spreading joy and goodwill through memorable corporate gifts.</p></div><div className="footer-col"><h4>Explore</h4><a href="/about">About</a><a href="/services">Our Services</a><a href="/products">Product Catalogs</a></div><div className="footer-col"><h4>Start an Enquiry</h4><a href="https://wa.me/2349126105778" target="_blank" rel="noreferrer">WhatsApp (0912 610 5778)</a><a href="https://wa.me/2349041000002" target="_blank" rel="noreferrer">WhatsApp (0904 100 0002)</a><a href="/#contact">Contact</a></div></div><div className="wrap footer-bottom">© {new Date().getFullYear()} Gifted Delites. All rights reserved.</div></footer>
+      <footer><div className="wrap footer-grid"><div className="footer-col"><div className="logo">{/* eslint-disable-next-line @next/next/no-img-element */}<img src="/images/gifted-delites-logo.jpg" alt="Gifted Delites" /></div><p>Spreading joy and goodwill through memorable corporate gifts.</p></div><div className="footer-col"><h4>Explore</h4><a href="/about">About</a><a href="/services">Our Services</a><a href="/products">Product Catalogs</a></div><div className="footer-col"><h4>Start an Enquiry</h4><a href="https://wa.me/2349041000002" target="_blank" rel="noreferrer">WhatsApp (0904 100 0002)</a><a href="/#contact">Contact</a></div></div><div className="wrap footer-bottom">© {new Date().getFullYear()} Gifted Delites. All rights reserved.</div></footer>
     </main>
   );
 }
