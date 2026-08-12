@@ -1275,7 +1275,7 @@ export default function Storefront() {
                 sendOrder(WHATSAPP_NUMBER)
               }
             >
-              Send via WhatsApp (0904 100 0002)
+              SEND VIA WHATSAPP
             </button>
           </div>
         </div>
